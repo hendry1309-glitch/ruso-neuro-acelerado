@@ -630,6 +630,23 @@ elif st.session_state.vista == 'Repaso':
     # Obtener palabras memorizadas para repaso
     df_memorizadas = pd.read_sql_query("SELECT * FROM palacio WHERE estado = 'memorizado' ORDER BY id ASC", db)
     
+    # Debug: mostrar cuántas palabras memorizadas hay
+    if not df_memorizadas.empty:
+        st.info(f"📚 Tienes {len(df_memorizadas)} palabras memorizadas para repasar")
+    else:
+        # También buscar palabras con otros estados por si acaso
+        df_todas = pd.read_sql_query("SELECT * FROM palacio ORDER BY id ASC", db)
+        st.warning(f"📊 Total de palabras en base de datos: {len(df_todas)}")
+        
+        if not df_todas.empty:
+            # Mostrar estados disponibles
+            estados = df_todas['estado'].unique() if 'estado' in df_todas.columns else []
+            st.write(f"Estados encontrados: {estados}")
+            
+            # Si hay palabras pero ninguna marcada como memorizada, mostrar todas para repaso
+            df_memorizadas = df_todas
+            st.info("🔄 Mostrando todas las palabras para repaso")
+    
     if df_memorizadas.empty:
         st.info("📚 No hay palabras memorizadas para repasar. Empieza con el entrenamiento 🎯")
     else:
