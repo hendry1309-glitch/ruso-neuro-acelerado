@@ -224,57 +224,57 @@ def generar_mnemotecnia_auto(ruso, esp):
     return f"Visualiza: {esp} mientras escuchas '{ruso}' en un ambiente ruso"
 
 def get_imagen_contextual(palabra_esp):
-    """Obtiene imagen contextual específica para la palabra"""
+    """Obtiene imagen contextual específica optimizada para iOS"""
     
-    # Mapeo de palabras a imágenes específicas
+    # URLs optimizadas para iOS (más pequeñas y confiables)
     imagenes_especificas = {
         # Saludos y personas
-        "hola": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "adios": "https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "gracias": "https://images.pexels.com/photos/2690323/pexels-photo-2690323.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "por favor": "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "perdon": "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
+        "hola": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?w=400&h=300&fit=crop",
+        "adios": "https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?w=400&h=300&fit=crop",
+        "gracias": "https://images.pexels.com/photos/2690323/pexels-photo-2690323.jpeg?w=400&h=300&fit=crop",
+        "por favor": "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?w=400&h=300&fit=crop",
+        "perdon": "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?w=400&h=300&fit=crop",
         
         # Lugares
-        "casa": "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "cocina": "https://images.pexels.com/photos/1579739/pexels-photo-1579739.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "habitacion": "https://images.pexels.com/photos/1642128/pexels-photo-1642128.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "baño": "https://images.pexels.com/photos/269077/pexels-photo-269077.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "jardin": "https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
+        "casa": "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?w=400&h=300&fit=crop",
+        "cocina": "https://images.pexels.com/photos/1579739/pexels-photo-1579739.jpeg?w=400&h=300&fit=crop",
+        "habitacion": "https://images.pexels.com/photos/1642128/pexels-photo-1642128.jpeg?w=400&h=300&fit=crop",
+        "baño": "https://images.pexels.com/photos/269077/pexels-photo-269077.jpeg?w=400&h=300&fit=crop",
+        "jardin": "https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?w=400&h=300&fit=crop",
         
         # Comida y bebida
-        "agua": "https://images.pexels.com/photos/327090/pexels-photo-327090.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "comida": "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "pan": "https://images.pexels.com/photos/209540/pexels-photo-209540.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "cafe": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
+        "agua": "https://images.pexels.com/photos/327090/pexels-photo-327090.jpeg?w=400&h=300&fit=crop",
+        "comida": "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?w=400&h=300&fit=crop",
+        "pan": "https://images.pexels.com/photos/209540/pexels-photo-209540.jpeg?w=400&h=300&fit=crop",
+        "cafe": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?w=400&h=300&fit=crop",
         
         # Animales
-        "perro": "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "gato": "https://images.pexels.com/photos/1170989/pexels-photo-1170989.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "caballo": "https://images.pexels.com/photos/1996333/pexels-photo-1996333.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
+        "perro": "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?w=400&h=300&fit=crop",
+        "gato": "https://images.pexels.com/photos/1170989/pexels-photo-1170989.jpeg?w=400&h=300&fit=crop",
+        "caballo": "https://images.pexels.com/photos/1996333/pexels-photo-1996333.jpeg?w=400&h=300&fit=crop",
         
         # Naturaleza
-        "arbol": "https://images.pexels.com/photos/2690323/pexels-photo-2690323.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "flor": "https://images.pexels.com/photos/36764/mans-shoulder-tattoo-sleeve.jpg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "sol": "https://images.pexels.com/photos/1509508/pexels-photo-1509508.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "luna": "https://images.pexels.com/photos/186980/pexels-photo-186980.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
+        "arbol": "https://images.pexels.com/photos/2690323/pexels-photo-2690323.jpeg?w=400&h=300&fit=crop",
+        "flor": "https://images.pexels.com/photos/36764/pexels-photo-36764.jpeg?w=400&h=300&fit=crop",
+        "sol": "https://images.pexels.com/photos/1509508/pexels-photo-1509508.jpeg?w=400&h=300&fit=crop",
+        "luna": "https://images.pexels.com/photos/186980/pexels-photo-186980.jpeg?w=400&h=300&fit=crop",
         
         # Transporte
-        "coche": "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "avion": "https://images.pexels.com/photos/102986/pexels-photo-102986.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "tren": "https://images.pexels.com/photos/50711/pexels-photo-50711.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
+        "coche": "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?w=400&h=300&fit=crop",
+        "avion": "https://images.pexels.com/photos/102986/pexels-photo-102986.jpeg?w=400&h=300&fit=crop",
+        "tren": "https://images.pexels.com/photos/50711/pexels-photo-50711.jpeg?w=400&h=300&fit=crop",
         
         # Acciones
-        "correr": "https://images.pexels.com/photos/1503921/pexels-photo-1503921.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "caminar": "https://images.pexels.com/photos/3821962/pexels-photo-3821962.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "comer": "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "beber": "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "dormir": "https://images.pexels.com/photos/1589329/pexels-photo-1589329.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
+        "correr": "https://images.pexels.com/photos/1503921/pexels-photo-1503921.jpeg?w=400&h=300&fit=crop",
+        "caminar": "https://images.pexels.com/photos/3821962/pexels-photo-3821962.jpeg?w=400&h=300&fit=crop",
+        "comer": "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?w=400&h=300&fit=crop",
+        "beber": "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?w=400&h=300&fit=crop",
+        "dormir": "https://images.pexels.com/photos/1589329/pexels-photo-1589329.jpeg?w=400&h=300&fit=crop",
         
         # Emociones
-        "feliz": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "triste": "https://images.pexels.com/photos/269077/pexels-photo-269077.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
-        "enojado": "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=800&h=600",
+        "feliz": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?w=400&h=300&fit=crop",
+        "triste": "https://images.pexels.com/photos/269077/pexels-photo-269077.jpeg?w=400&h=300&fit=crop",
+        "enojado": "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?w=400&h=300&fit=crop",
     }
     
     # Buscar palabra exacta primero
@@ -287,27 +287,27 @@ def get_imagen_contextual(palabra_esp):
         if clave in palabra_lower:
             return url
     
-    # Imágenes por categoría
+    # Imágenes por categoría optimizadas para iOS
     if any(word in palabra_lower for word in ['persona', 'gente', 'hombre', 'mujer', 'niño']):
-        return "https://images.pexels.com/photos/837358/pexels-photo-837358.jpeg?auto=compress&cs=tinysrgb&w=800&h=600"
+        return "https://images.pexels.com/photos/837358/pexels-photo-837358.jpeg?w=400&h=300&fit=crop"
     
     elif any(word in palabra_lower for word in ['comida', 'beber', 'cafe', 'agua', 'pan']):
-        return "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?auto=compress&cs=tinysrgb&w=800&h=600"
+        return "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?w=400&h=300&fit=crop"
     
     elif any(word in palabra_lower for word in ['casa', 'hogar', 'habitacion', 'cocina']):
-        return "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=800&h=600"
+        return "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?w=400&h=300&fit=crop"
     
     elif any(word in palabra_lower for word in ['naturaleza', 'arbol', 'flor', 'sol', 'luna']):
-        return "https://images.pexels.com/photos/1509508/pexels-photo-1509508.jpeg?auto=compress&cs=tinysrgb&w=800&h=600"
+        return "https://images.pexels.com/photos/1509508/pexels-photo-1509508.jpeg?w=400&h=300&fit=crop"
     
     elif any(word in palabra_lower for word in ['animal', 'perro', 'gato', 'pajaro']):
-        return "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=800&h=600"
+        return "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?w=400&h=300&fit=crop"
     
     elif any(word in palabra_lower for word in ['coche', 'carro', 'auto', 'avion', 'tren']):
-        return "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=800&h=600"
+        return "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?w=400&h=300&fit=crop"
     
-    # Imagen genérica de aprendizaje como último recurso
-    return "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=800&h=600"
+    # Imagen genérica de aprendizaje optimizada para iOS
+    return "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop"
 
 # --- SISTEMA DE REPETICIÓN ESPACIADA ---
 def calcular_siguiente_repaso(dificultad, repeticiones):
@@ -350,11 +350,17 @@ def generar_audio_subliminal(texto_ruso, significado, mnemotecnia, ubicacion):
     return fp
 
 def get_audio_pronunciacion(texto_ruso):
-    """Obtiene audio de pronunciación rusa"""
-    tts = gTTS(texto_ruso, lang='ru', slow=False)
-    fp = io.BytesIO()
-    tts.write_to_fp(fp)
-    return fp
+    """Obtiene audio de pronunciación rusa compatible con iOS"""
+    try:
+        # Configuración optimizada para iOS
+        tts = gTTS(texto_ruso, lang='ru', slow=False)
+        fp = io.BytesIO()
+        tts.write_to_fp(fp)
+        fp.seek(0)  # Resetear puntero para iOS
+        return fp
+    except Exception as e:
+        st.error(f"Error generando audio: {e}")
+        return None
 
 # --- LÓGICA DE NAVEGACIÓN (Simulando App Nativa con Session State) ---
 if 'vista' not in st.session_state:
@@ -439,8 +445,12 @@ if st.session_state.vista == 'Entrenar':
         </div>
         """, unsafe_allow_html=True)
         
-        # Mostrar imagen con timestamp para evitar caché
-        st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🇷🇺 {palabra['ruso']} - {palabra['esp']}")
+        # Mostrar imagen optimizada para iOS
+        try:
+            st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🇷🇺 {palabra['ruso']} - {palabra['esp']}", output_format="JPEG")
+        except Exception as e:
+            st.error("Error cargando imagen")
+            st.image("https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop", use_container_width=True, caption="🇷🇺 Imagen de respaldo")
         
         # Instrucción visual
         st.markdown(f"""
@@ -454,21 +464,31 @@ if st.session_state.vista == 'Entrenar':
         with col_audio1:
             if st.button("🔊 PRONUNCIACIÓN", key="audio_normal", use_container_width=True):
                 audio = get_audio_pronunciacion(palabra['ruso'])
-                st.audio(audio, format='audio/mp3')
+                if audio:
+                    st.audio(audio, format='audio/mp3', autoplay=True)
+                else:
+                    st.error("No se pudo generar el audio")
         
         with col_audio2:
             if st.button("🧠 AUDIO SUBLIMINAL", key="audio_subliminal", use_container_width=True):
                 audio = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
-                st.audio(audio, format='audio/mp3')
-                st.info(f"💫 Audio subliminal activado - Conectando '{palabra['ruso']}' con {palabra['ubicacion']}")
+                if audio:
+                    st.audio(audio, format='audio/mp3', autoplay=True)
+                    st.info(f"💫 Audio subliminal activado - Conectando '{palabra['ruso']}' con {palabra['ubicacion']}")
+                else:
+                    st.error("No se pudo generar el audio subliminal")
         
         with col_audio3:
             if st.button("🎵 RITMO", key="audio_ritmo", use_container_width=True):
                 # Audio rítmico para memorización
-                tts = gTTS(f"{palabra['ruso']}. {palabra['esp']}. {palabra['ruso']}.", lang='ru', slow=True)
-                fp = io.BytesIO()
-                tts.write_to_fp(fp)
-                st.audio(fp, format='audio/mp3')
+                try:
+                    tts = gTTS(f"{palabra['ruso']}. {palabra['esp']}. {palabra['ruso']}.", lang='ru', slow=True)
+                    fp = io.BytesIO()
+                    tts.write_to_fp(fp)
+                    fp.seek(0)
+                    st.audio(fp, format='audio/mp3', autoplay=True)
+                except Exception as e:
+                    st.error("Error generando audio rítmico")
         
         st.divider()
         
@@ -947,7 +967,12 @@ elif st.session_state.vista == 'Neuro':
                 imagen_url = get_imagen_contextual(palabra['esp'])
                 timestamp = int(time.time())
                 imagen_url_con_timestamp = f"{imagen_url}&t={timestamp}"
-                st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra['esp']}")
+                # Mostrar imagen optimizada para iOS
+                try:
+                    st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra['esp']}", output_format="JPEG")
+                except Exception as e:
+                    st.error("Error cargando imagen")
+                    st.image("https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop", use_container_width=True, caption="🖼️ Imagen de respaldo")
                 
                 st.write(f"**🏰 Ubicación:** {palabra['ubicacion']}")
                 st.write(f"**💭 Mnemotecnia:** {palabra['mne']}")
@@ -956,12 +981,16 @@ elif st.session_state.vista == 'Neuro':
                 if st.button(f"🎵 Programar '{palabra['ruso']}'", key=f"programar_{palabra['id']}"):
                     # Audio subliminal completo con conexión palacio-mnemotecnia
                     audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
-                    st.audio(audio_subliminal, format='audio/mp3')
-                    st.success(f"🧠 Programación activa: {palabra['ubicacion']} ↔ {palabra['ruso']} ↔ {palabra['esp']}")
-                    
-                    # Audio de pronunciación rusa
-                    audio_ruso = get_audio_pronunciacion(palabra['ruso'])
-                    st.audio(audio_ruso, format='audio/mp3')
+                    if audio_subliminal:
+                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
+                        st.success(f"🧠 Programación activa: {palabra['ubicacion']} ↔ {palabra['ruso']} ↔ {palabra['esp']}")
+                        
+                        # Audio de pronunciación rusa
+                        audio_ruso = get_audio_pronunciacion(palabra['ruso'])
+                        if audio_ruso:
+                            st.audio(audio_ruso, format='audio/mp3', autoplay=True)
+                    else:
+                        st.error("Error generando audio de programación")
                     
                     # Visualización de la conexión
                     st.markdown(f"""
