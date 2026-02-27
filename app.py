@@ -324,13 +324,17 @@ def calcular_siguiente_repaso(dificultad, repeticiones):
 def actualizar_palabra(palabra_id, estado, acierto=None):
     """Actualiza estado y dificultad de palabra"""
     if acierto is not None:
+        # Obtener dificultad actual con manejo de NULL
+        resultado = db.execute("SELECT dificultad FROM palacio WHERE id = ?", (palabra_id,)).fetchone()
+        dificultad_actual = resultado[0] if resultado and resultado[0] is not None else 2.5  # Valor por defecto
+        
         # Actualizar dificultad según respuesta
         if acierto:
-            nueva_dificultad = max(1.3, db.execute("SELECT dificultad FROM palacio WHERE id = ?", (palabra_id,)).fetchone()[0] * 0.8)
+            nueva_dificultad = max(1.3, dificultad_actual * 0.8)
             db.execute("UPDATE palacio SET repeticiones = repeticiones + 1, dificultad = ?, ultima_repaso = ? WHERE id = ?", 
                       (nueva_dificultad, datetime.now().strftime('%Y-%m-%d'), palabra_id))
         else:
-            nueva_dificultad = min(3.5, db.execute("SELECT dificultad FROM palacio WHERE id = ?", (palabra_id,)).fetchone()[0] * 1.2)
+            nueva_dificultad = min(3.5, dificultad_actual * 1.2)
             db.execute("UPDATE palacio SET dificultad = ?, repeticiones = 0 WHERE id = ?", (nueva_dificultad, palabra_id))
     else:
         db.execute("UPDATE palacio SET estado = ? WHERE id = ?", (estado, palabra_id))
