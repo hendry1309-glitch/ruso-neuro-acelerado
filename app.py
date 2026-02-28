@@ -580,78 +580,34 @@ if st.session_state.vista == 'Entrenar':
         # SIN IMAGEN - MEJOR RENDIMIENTO PARA IPHONE
         # Imágenes eliminadas para priorizar audio y rendimiento
         
-        # SECCIÓN DE AUDIO - SOLUCIÓN DEFINITIVA PARA IPHONE
+        # --- AUDIO CORREGIDO PARA IPHONE (SISTEMA SIMPLE) ---
         st.markdown("---")
-        st.markdown("### 🔊 Audio de Aprendizaje")
         
-        # Generar audio en tiempo real para iPhone
+        # Generar audio simple como en el código base
         try:
-            # Audio de pronunciación rusa
-            st.markdown("**🇷🇺 Pronunciación Rusa:**")
-            audio_ruso = get_audio_pronunciacion(palabra['ruso'])
-            if audio_ruso:
-                audio_ruso.seek(0)
-                st.audio(audio_ruso, format='audio/mp3', autoplay=False)
-                st.success("✅ Audio ruso listo")
-            else:
-                st.error("❌ Error generando audio ruso")
+            tts = gTTS(palabra['ruso'], lang='ru')
+            audio_fp = io.BytesIO()
+            tts.write_to_fp(audio_fp)
+            audio_bytes = audio_fp.getvalue()
             
-            # Audio subliminal
-            st.markdown("**🧠 Programación Subliminal:**")
-            audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
-            if audio_subliminal:
-                audio_subliminal.seek(0)
-                st.audio(audio_subliminal, format='audio/mp3', autoplay=False)
-                st.success("✅ Audio subliminal listo")
-            else:
-                st.error("❌ Error generando audio subliminal")
+            # Botón de reproducción simple
+            if st.button("🔊 REPRODUCIR AUDIO", use_container_width=True, type="primary"):
+                st.audio(audio_bytes, format='audio/mp3')
+                st.caption("💡 Nota: Si no escuchas, desactiva el modo silencio físico del iPhone.")
                 
         except Exception as e:
-            st.error(f"❌ Error en sistema de audio: {str(e)}")
+            st.error(f"❌ Error generando audio: {str(e)}")
             st.info("💡 Recarga la página o usa Safari en iPhone")
         
-        # INSTRUCCIONES PARA IPHONE
-        st.markdown("---")
+        # INSTRUCCIONES SIMPLES PARA IPHONE
         st.markdown("### 📱 Instrucciones para iPhone:")
         st.markdown("""
         - 🔊 **Usa Safari** (no Chrome/Firefox)
-        - 📱 **Activa el sonido** y quita silencio
+        - 📱 **Activa el sonido** y quita silencio físico
         - 🎧 **Usa auriculares** para mejor experiencia
         - 📶 **WiFi estable** para audio sin interrupciones
         - 🔄 **Recarga página** si no hay sonido
         """)
-        
-        # BOTONES DE AUDIO SIMPLIFICADOS PARA IPHONE
-        col_audio1, col_audio2 = st.columns(2)
-        
-        with col_audio1:
-            if st.button("🔊 ESCUCHAR RUSO", key="btn_pronunciacion_simple", use_container_width=True, type="primary"):
-                try:
-                    audio = get_audio_pronunciacion(palabra['ruso'])
-                    if audio:
-                        audio.seek(0)
-                        st.audio(audio, format='audio/mp3', autoplay=True)
-                        st.success("✅ Reproduciendo pronunciación")
-                    else:
-                        st.error("❌ Error generando audio")
-                except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
-        
-        with col_audio2:
-            if st.button("🧠 PROGRAMAR", key="btn_subliminal_simple", use_container_width=True):
-                try:
-                    audio = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
-                    if audio:
-                        audio.seek(0)
-                        st.audio(audio, format='audio/mp3', autoplay=True)
-                        st.info(f"🧠 Programando: {palabra['ruso']} ↔ {palabra['esp']}")
-                    else:
-                        st.error("❌ Error generando programación")
-                except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
-        
-        # SIN AUTOPLAY - MEJOR PARA IPHONE
-        # El usuario debe hacer clic manualmente para reproducir audio
         
         st.divider()
         
@@ -778,868 +734,113 @@ if st.session_state.vista == 'Entrenar':
         
         st.divider()
         
-        # SECCIÓN DE REVELACIÓN
-        if not st.session_state.get('revelado', False):
-            if st.button("💡 REVELAR SIGNIFICADO Y MNEMOTECNIA", key="revelar", use_container_width=True, type="primary"):
-                st.session_state.revelado = True
-                st.rerun()
-        else:
-            # Mostrar información revelada
-            col1, col2 = st.columns(2)
+        # SECCIÓN DE REVELACIÓN SIMPLE
+        if st.button("💡 REVELAR SIGNIFICADO"):
+            st.session_state.revelado = True
             
-            with col1:
-                st.markdown(f"""
-                    <div class="card" style="background: linear-gradient(135deg, #4CAF50, #45a049); color: white;">
-                        <h3>✅ Significado</h3>
-                        <h2>{palabra['esp']}</h2>
-                    </div>
-                    """, unsafe_allow_html=True)
+        if st.session_state.revelado:
+            st.success(f"**Traducción:** {palabra['esp']}")
+            st.info(f"**Mnemotecnia:** {palabra['mne']}")
             
-            with col2:
-                st.markdown(f"""
-                    <div class="card" style="background: linear-gradient(135deg, #FF9800, #F57C00); color: white;">
-                        <h3>🧠 Mnemotecnia</h3>
-                        <p>{palabra['mne']}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-            
-            # Botones de acción
-            col_btn1, col_btn2, col_btn3 = st.columns(3)
-            
-            # Estos botones ya están implementados arriba en la sección de memorización
-# No se duplican para evitar errores de clave
+            col_a, col_b = st.columns(2)
+            with col_a:
+                if st.button("✅ LO MEMORICÉ"):
+                    db.execute("UPDATE palacio SET estado = 'memorizado' WHERE id = ?", (int(palabra['id']),))
+                    db.commit()
+                    st.session_state.revelado = False
+                    st.rerun()
+            with col_b:
+                if st.button("❌ NO LO SÉ AÚN"):
+                    st.session_state.revelado = False
+                    st.rerun()
 
-# --- VISTA: REPASO INTELIGENTE MEJORADO ---
+# --- VISTA: REPASO (MODO TEST) ---
 elif st.session_state.vista == 'Repaso':
-    st.header("🔄 Repaso Inteligente")
+    st.subheader("🔄 Test de Validación")
+    df_mem = pd.read_sql_query("SELECT * FROM palacio WHERE estado = 'memorizado'", db)
     
-    # Obtener palabras memorizadas para repaso
-    df_memorizadas = pd.read_sql_query("SELECT * FROM palacio WHERE estado = 'memorizado' ORDER BY id ASC", db)
-    
-    # Debug: mostrar cuántas palabras memorizadas hay
-    if not df_memorizadas.empty:
-        st.info(f"📚 Tienes {len(df_memorizadas)} palabras memorizadas para repasar")
+    if len(df_mem) < 4:
+        st.warning("Necesitas memorizar al menos 4 palabras en el entrenamiento antes de repasar.")
     else:
-        # También buscar palabras con otros estados por si acaso
-        df_todas = pd.read_sql_query("SELECT * FROM palacio ORDER BY id ASC", db)
-        st.warning(f"📊 Total de palabras en base de datos: {len(df_todas)}")
+        # Generar pregunta aleatoria de las memorizadas
+        if 'test_item' not in st.session_state:
+            target = df_mem.sample(1).iloc[0]
+            distractores = df_mem[df_mem['id'] != target['id']].sample(3)['esp'].tolist()
+            opciones = [target['esp']] + distractores
+            random.shuffle(opciones)
+            st.session_state.test_item = {'target': target, 'opciones': opciones}
+
+        t = st.session_state.test_item
+        st.markdown(f'<div class="card"><h1>{t["target"]["ruso"]}</h1></div>', unsafe_allow_html=True)
         
-        if not df_todas.empty:
-            # Mostrar estados disponibles
-            estados = df_todas['estado'].unique() if 'estado' in df_todas.columns else []
-            st.write(f"Estados encontrados: {estados}")
-            
-            # Si hay palabras pero ninguna marcada como memorizada, mostrar todas para repaso
-            df_memorizadas = df_todas
-            st.info("🔄 Mostrando todas las palabras para repaso")
-    
-    if df_memorizadas.empty:
-        st.info("📚 No hay palabras memorizadas para repasar. Empieza con el entrenamiento 🎯")
-    else:
-        # MODO DE REPASO MEJORADO
-        st.markdown("---")
-        st.markdown("### 🎯 Modo de Repaso")
+        seleccion = st.radio("¿Cuál es el significado correcto?", t['opciones'])
         
-        modo_repaso = st.radio("Elige el modo de repaso:", 
-                              ["📝 Lista Completa", "🎮 Quiz Rápido", "🧠 Repaso Intensivo"],
-                              key="modo_repaso")
-        
-        if modo_repaso == "📝 Lista Completa":
-            # MOSTRAR TODAS LAS PALABRAS MEMORIZADAS
-            st.markdown("#### 📚 Todas tus palabras memorizadas:")
-            
-            # Buscador
-            termino_busqueda = st.text_input("🔍 Buscar palabra:", key="buscar_repaso")
-            
-            # Filtrar palabras
-            if termino_busqueda:
-                df_filtradas = df_memorizadas[
-                    df_memorizadas['ruso'].str.contains(termino_busqueda, case=False) |
-                    df_memorizadas['esp'].str.contains(termino_busqueda, case=False)
-                ]
-            else:
-                df_filtradas = df_memorizadas
-            
-            # Mostrar palabras en tarjetas
-            for i, (_, palabra) in enumerate(df_filtradas.iterrows()):
-                with st.expander(f"🇷🇺 {palabra['ruso']} - 🇪🇸 {palabra['esp']}", expanded=False):
-                    col1, col2 = st.columns(2)
-                    
-                    with col1:
-                        st.write(f"**Transliteración:** {palabra['trans']}")
-                        st.write(f"**Ubicación:** {palabra['ubicacion']}")
-                        st.write(f"**Mnemotecnia:** {palabra['mne']}")
-                        
-                        # Audio de pronunciación
-                        if st.button(f"🔊 Escuchar {palabra['ruso']}", key=f"audio_repaso_{palabra['id']}"):
-                            audio = get_audio_pronunciacion(palabra['ruso'])
-                            if audio:
-                                st.audio(audio, format='audio/mp3', autoplay=True)
-                    
-                    with col2:
-                        # Mostrar imagen contextual
-                        imagen_url = get_imagen_contextual(palabra['esp'])
-                        timestamp = int(time.time())
-                        imagen_url_con_timestamp = f"{imagen_url}&t={timestamp}"
-                        
-                        try:
-                            st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra['esp']}", output_format="JPEG")
-                        except:
-                            st.warning("⚠️ Imagen no disponible")
-                    
-                    # Botones de acción
-                    col_btn1, col_btn2, col_btn3 = st.columns(3)
-                    
-                    with col_btn1:
-                        if st.button("✅ Dominada", key=f"dominada_{palabra['id']}", use_container_width=True):
-                            actualizar_palabra(palabra['id'], 'memorizado', acierto=True)
-                            st.success("✅ Palabra reforzada")
-                            st.rerun()
-                    
-                    with col_btn2:
-                        if st.button("🔄 Repasar", key=f"repaso_individual_{palabra['id']}", use_container_width=True):
-                            actualizar_palabra(palabra['id'], 'repasar')
-                            st.info("🔄 Programada para repaso")
-                            st.rerun()
-                    
-                    with col_btn3:
-                        if st.button("❌ Olvidada", key=f"olvidada_{palabra['id']}", use_container_width=True):
-                            actualizar_palabra(palabra['id'], 'pendiente')
-                            st.warning("❌ Palabra regresada a pendiente")
-                            st.rerun()
-        
-        elif modo_repaso == "🎮 Quiz Rápido":
-            # QUIZ TRADICIONAL MEJORADO
-            st.markdown("#### 🎮 Quiz Rápido de 4 Opciones")
-            
-            # Inicializar quiz si no existe
-            if 'quiz_actual' not in st.session_state:
-                st.session_state.quiz_actual = None
-                st.session_state.quiz_opciones = []
-                st.session_state.quiz_respuesta_correcta = None
-                st.session_state.puntuacion = 0
-                st.session_state.total_preguntas = 0
-            
-            # Seleccionar palabra aleatoria para quiz
-            if st.session_state.quiz_actual is None:
-                palabra_quiz = df_memorizadas.sample(1).iloc[0]
-                st.session_state.quiz_actual = palabra_quiz
-                
-                # Determinar dirección del quiz (aleatorio)
-                direccion = random.choice(['ru->es', 'es->ru'])
-                
-                if direccion == 'ru->es':
-                    # Mostrar ruso, opciones en español
-                    pregunta = palabra_quiz['ruso']
-                    respuesta_correcta = palabra_quiz['esp']
-                    
-                    # Generar opciones incorrectas
-                    otras_palabras = df_memorizadas[df_memorizadas['esp'] != respuesta_correcta]
-                    if len(otras_palabras) >= 3:
-                        opciones_incorrectas = otras_palabras['esp'].sample(3).tolist()
-                    else:
-                        opciones_incorrectas = otras_palabras['esp'].tolist()
-                    
-                    st.session_state.quiz_opciones = [respuesta_correcta] + opciones_incorrectas
-                    random.shuffle(st.session_state.quiz_opciones)
-                    st.session_state.quiz_respuesta_correcta = respuesta_correcta
-                    st.session_state.quiz_direccion = 'ru->es'
-                    
-                else:
-                    # Mostrar español, opciones en ruso
-                    pregunta = palabra_quiz['esp']
-                    respuesta_correcta = palabra_quiz['ruso']
-                    
-                    # Generar opciones incorrectas
-                    otras_palabras = df_memorizadas[df_memorizadas['ruso'] != respuesta_correcta]
-                    if len(otras_palabras) >= 3:
-                        opciones_incorrectas = otras_palabras['ruso'].sample(3).tolist()
-                    else:
-                        opciones_incorrectas = otras_palabras['ruso'].tolist()
-                    
-                    st.session_state.quiz_opciones = [respuesta_correcta] + opciones_incorrectas
-                    random.shuffle(st.session_state.quiz_opciones)
-                    st.session_state.quiz_respuesta_correcta = respuesta_correcta
-                    st.session_state.quiz_direccion = 'es->ru'
-            
-            # Mostrar quiz actual
-            if st.session_state.quiz_actual is not None:
-                # Mostrar puntuación
-                st.markdown(f"**Puntuación:** {st.session_state.puntuacion}/{st.session_state.total_preguntas}")
-                
-                st.markdown("---")
-                
-                # Mostrar pregunta
-                if st.session_state.quiz_direccion == 'ru->es':
-                    st.markdown(f"#### 🇷🇺 ¿Qué significa: **{st.session_state.quiz_actual['ruso']}**?")
-                else:
-                    st.markdown(f"#### 🇪🇸 ¿Cómo se dice en ruso: **{st.session_state.quiz_actual['esp']}**?")
-                
-                # Mostrar opciones
-                col1, col2 = st.columns(2)
-                for i, opcion in enumerate(st.session_state.quiz_opciones):
-                    if i < 2:
-                        with col1:
-                            if st.button(f"📍 {opcion}", key=f"opcion_{i}", use_container_width=True):
-                                st.session_state.total_preguntas += 1
-                                if opcion == st.session_state.quiz_respuesta_correcta:
-                                    st.success("🎉 ¡Correcto! ¡Bien hecho!")
-                                    st.session_state.puntuacion += 1
-                                    actualizar_palabra(st.session_state.quiz_actual['id'], 'memorizado', acierto=True)
-                                else:
-                                    st.error(f"❌ Incorrecto. La respuesta correcta era: {st.session_state.quiz_respuesta_correcta}")
-                                    actualizar_palabra(st.session_state.quiz_actual['id'], 'memorizado', acierto=False)
-                                
-                                # Resetear quiz
-                                st.session_state.quiz_actual = None
-                                st.session_state.quiz_opciones = []
-                                st.session_state.quiz_respuesta_correcta = None
-                                time.sleep(2)
-                                st.rerun()
-                    else:
-                        with col2:
-                            if st.button(f"📍 {opcion}", key=f"opcion_{i}", use_container_width=True):
-                                st.session_state.total_preguntas += 1
-                                if opcion == st.session_state.quiz_respuesta_correcta:
-                                    st.success("🎉 ¡Correcto! ¡Bien hecho!")
-                                    st.session_state.puntuacion += 1
-                                    actualizar_palabra(st.session_state.quiz_actual['id'], 'memorizado', acierto=True)
-                                else:
-                                    st.error(f"❌ Incorrecto. La respuesta correcta era: {st.session_state.quiz_respuesta_correcta}")
-                                    actualizar_palabra(st.session_state.quiz_actual['id'], 'memorizado', acierto=False)
-                                
-                                # Resetear quiz
-                                st.session_state.quiz_actual = None
-                                st.session_state.quiz_opciones = []
-                                st.session_state.quiz_respuesta_correcta = None
-                                time.sleep(2)
-                                st.rerun()
-                
-                # Botón para saltar pregunta
-                if st.button("⏭️ Saltar pregunta", key="skip_question"):
-                    st.session_state.quiz_actual = None
-                    st.session_state.quiz_opciones = []
-                    st.session_state.quiz_respuesta_correcta = None
+        if st.button("Comprobar Respuesta"):
+            if seleccion == t['target']['esp']:
+                st.balloons()
+                st.success("¡Excelente! Memoria confirmada.")
+                if st.button("Siguiente Test"):
+                    del st.session_state.test_item
                     st.rerun()
-        
-        else:  # 🧠 Repaso Intensivo
-            st.markdown("#### 🧠 Repaso Intensivo - Todas las palabras seguidas")
-            
-            # Inicializar repaso intensivo
-            if 'repaso_intensivo_indice' not in st.session_state:
-                st.session_state.repaso_intensivo_indice = 0
-                st.session_state.repaso_intensivo_errores = 0
-            
-            if st.session_state.repaso_intensivo_indice < len(df_memorizadas):
-                palabra_actual = df_memorizadas.iloc[st.session_state.repaso_intensivo_indice]
-                
-                st.markdown(f"**Palabra {st.session_state.repaso_intensivo_indice + 1} de {len(df_memorizadas)}**")
-                st.markdown(f"**Errores:** {st.session_state.repaso_intensivo_errores}")
-                
-                st.markdown("---")
-                st.markdown(f"#### 🇷🇺 ¿Qué significa: **{palabra_actual['ruso']}**?")
-                
-                # Input para respuesta
-                respuesta_usuario = st.text_input("Escribe tu respuesta:", key="respuesta_intensiva")
-                
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    if st.button("✅ Comprobar", key="comprobar_intensivo", use_container_width=True):
-                        if respuesta_usuario.lower().strip() == palabra_actual['esp'].lower().strip():
-                            st.success("🎉 ¡Correcto!")
-                            actualizar_palabra(palabra_actual['id'], 'memorizado', acierto=True)
-                            st.session_state.repaso_intensivo_indice += 1
-                            time.sleep(1)
-                            st.rerun()
-                        else:
-                            st.error(f"❌ Incorrecto. La respuesta correcta es: {palabra_actual['esp']}")
-                            st.session_state.repaso_intensivo_errores += 1
-                            actualizar_palabra(palabra_actual['id'], 'memorizado', acierto=False)
-                            time.sleep(2)
-                            st.rerun()
-                
-                with col2:
-                    if st.button("🔊 Escuchar", key="escuchar_intensivo", use_container_width=True):
-                        audio = get_audio_pronunciacion(palabra_actual['ruso'])
-                        if audio:
-                            st.audio(audio, format='audio/mp3', autoplay=True)
-                
-                with col3:
-                    if st.button("⏭️ Saltar", key="saltar_intensivo", use_container_width=True):
-                        st.session_state.repaso_intensivo_indice += 1
-                        st.rerun()
-                
-                # Mostrar ayuda
-                with st.expander("💡 Ayuda", expanded=False):
-                    st.write(f"**Mnemotecnia:** {palabra_actual['mne']}")
-                    st.write(f"**Ubicación:** {palabra_actual['ubicacion']}")
-                    st.write(f"**Transliteración:** {palabra_actual['trans']}")
-            
             else:
-                st.success("🎉 ¡Has completado el repaso intensivo!")
-                st.markdown(f"**Total de errores:** {st.session_state.repaso_intensivo_errores}")
-                
-                if st.button("🔄 Reiniciar repaso intensivo", key="reiniciar_intensivo"):
-                    st.session_state.repaso_intensivo_indice = 0
-                    st.session_state.repaso_intensivo_errores = 0
+                st.error(f"¡Cuidado! El significado era: {t['target']['esp']}")
+                if st.button("Devolver a entrenamiento"):
+                    db.execute("UPDATE palacio SET estado = 'nuevo' WHERE id = ?", (int(t['target']['id']),))
+                    db.commit()
+                    del st.session_state.test_item
                     st.rerun()
 
-# --- VISTA: PALACIO (GESTIÓN MNEMOTÉCNICA) ---
+# --- VISTA: PALACIO (CORREGIDA LA VISIBILIDAD DE ESTADO) ---
 elif st.session_state.vista == 'Palacio':
-    st.header("🏰 Palacio de la Memoria")
+    st.subheader("🏰 Tu Palacio de la Memoria")
+    df_total = pd.read_sql_query("SELECT ruso, esp, mne, ubicacion, estado FROM palacio", db)
     
-    # Estadísticas del palacio - CORREGIDO
-    total_palabras = db.execute("SELECT COUNT(*) FROM palacio").fetchone()[0]
-    memorizadas = db.execute("SELECT COUNT(*) FROM palacio WHERE estado = 'memorizado'").fetchone()[0]
-    pendientes = total_palabras - memorizadas
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("📚 Total Palabras", total_palabras)
-    with col2:
-        st.metric("✅ Memorizadas", memorizadas)
-    with col3:
-        st.metric("⏳ Pendientes", pendientes)
-    
-    st.divider()
-    
-    # Editor del palacio
-    df_all = pd.read_sql_query("SELECT id, ruso, trans, esp, mne, ubicacion, estado FROM palacio", db)
-    
-    if not df_all.empty:
-        st.subheader("📝 Editar Mnemotécnicas y Ubicaciones")
-        edited = st.data_editor(df_all, hide_index=True, use_container_width=True)
-        
-        if st.button("💾 Guardar Cambios", use_container_width=True, type="primary"):
-            # Actualizar base de datos con cambios
-            for _, row in edited.iterrows():
-                db.execute("""UPDATE palacio SET 
-                             ruso = ?, trans = ?, esp = ?, mne = ?, 
-                             ubicacion = ?, estado = ? WHERE id = ?""",
-                         (row['ruso'], row['trans'], row['esp'], row['mne'], 
-                          row['ubicacion'], row['estado'], row['id']))
-            db.commit()
-            st.success("✅ Palacio actualizado correctamente!")
-            time.sleep(1)
-            st.rerun()
+    if df_total.empty:
+        st.info("Tu palacio está vacío.")
     else:
-        st.info("📭 El palacio está vacío. Carga palabras para empezar.")
+        # Mostrar contadores
+        m = len(df_total[df_total['estado'] == 'memorizado'])
+        n = len(df_total[df_total['estado'] != 'memorizado'])
+        c1, c2 = st.columns(2)
+        c1.metric("Memorizadas", m)
+        c2.metric("Pendientes", n)
 
-# --- VISTA: CARGAR DATOS ---
-elif st.session_state.vista == 'Cargar':
-    st.header("📥 Cargar Diccionario")
-    
-    tab1, tab2, tab3 = st.tabs(["📁 Subir Archivo", "📝 Ingreso Manual", "📊 Google Sheets"])
-    
-    with tab1:
-        st.subheader("Subir Archivo CSV")
-        
-        # Botón de emergencia para cargar palabras
-        if st.button("🚨 Cargar Palabras de Emergencia", type="primary"):
-            st.info("Intentando cargar palabras desde archivos locales...")
-            cargar_palabras_iniciales()
-            count = db.execute("SELECT COUNT(*) FROM palacio").fetchone()[0]
-            if count > 0:
-                st.success(f"✅ Se cargaron {count} palabras correctamente!")
-                st.rerun()
-            else:
-                st.error("❌ No se pudieron cargar las palabras")
-        
-        archivo = st.file_uploader("Selecciona tu archivo CSV", type=['csv'])
-        
-        if archivo:
-            try:
-                df_nuevo = pd.read_csv(archivo)
-                st.success(f"📊 Archivo cargado: {len(df_nuevo)} filas")
-                st.dataframe(df_nuevo.head())
-                
-                # Mapeo de columnas
-                st.subheader("🔗 Mapear Columnas")
-                columnas_df = df_nuevo.columns.tolist()
-                
-                col_map = {}
-                col_map['ruso'] = st.selectbox("Columna Ruso:", columnas_df, index=0 if 'ruso' in columnas_df else 0)
-                col_map['trans'] = st.selectbox("Columna Transliteración:", columnas_df, index=1 if 'trans' in columnas_df or 'transliteracion' in columnas_df else 1)
-                col_map['esp'] = st.selectbox("Columna Español:", columnas_df, index=2 if 'esp' in columnas_df or 'español' in columnas_df else 2)
-                col_map['mne'] = st.selectbox("Columna Mnemotecnia:", columnas_df, index=3 if 'mne' in columnas_df or 'mnemotecnia' in columnas_df else 3)
-                
-                if st.button("🚀 Procesar y Cargar", type="primary"):
-                    contador = 0
-                    for _, row in df_nuevo.iterrows():
-                        try:
-                            ubicacion = generar_ubicacion_palacio(row[col_map['esp']])
-                            mnemotecnia = row[col_map['mne']] if pd.notna(row[col_map['mne']]) else generar_mnemotecnia_auto(row[col_map['ruso']], row[col_map['esp']])
-                            
-                            db.execute("""INSERT INTO palacio 
-                                         (ruso, trans, esp, mne, ubicacion, palace_room, imagen_url) 
-                                         VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                                     (row[col_map['ruso']], row[col_map['trans']], row[col_map['esp']], 
-                                      mnemotecnia, ubicacion, ubicacion, get_imagen_contextual(row[col_map['esp']])))
-                            contador += 1
-                        except Exception as e:
-                            st.warning(f"Error en fila: {e}")
-                    
-                    db.commit()
-                    st.success(f"🎉 ¡Se han cargado {contador} palabras al palacio!")
-                    time.sleep(2)
-                    st.rerun()
-                    
-            except Exception as e:
-                st.error(f"❌ Error al leer archivo: {e}")
-    
-    with tab2:
-        st.subheader("Agregar Palabra Manualmente")
-        
-        with st.form("form_manual"):
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                ruso_input = st.text_input("🇷🇺 Palabra en Ruso")
-                trans_input = st.text_input("🔤 Transliteración")
-            
-            with col2:
-                esp_input = st.text_input("🇪🇸 Significado en Español")
-                mne_input = st.text_area("🧠 Mnemotecnia", height=100)
-            
-            if st.form_submit_button("➕ Agregar Palabra", type="primary"):
-                if ruso_input and esp_input:
-                    ubicacion = generar_ubicacion_palacio(esp_input)
-                    mnemotecnia = mne_input if mne_input else generar_mnemotecnia_auto(ruso_input, esp_input)
-                    
-                    db.execute("""INSERT INTO palacio 
-                                 (ruso, trans, esp, mne, ubicacion, palace_room, imagen_url) 
-                                 VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                             (ruso_input, trans_input, esp_input, mnemotecnia, 
-                              ubicacion, ubicacion, get_imagen_contextual(esp_input)))
-                    db.commit()
-                    st.success("✅ Palabra agregada correctamente!")
-                    st.rerun()
-    
-    with tab3:
-        st.subheader("📊 Cargar desde Google Sheets")
-        
-        # URL predefinida del usuario
-        default_url = "https://docs.google.com/spreadsheets/d/1F0MMq0PW3AsIrSntrSZnhvGsqm91_YZbIrBkSkTwrsc/edit?gid=1713246625#gid=1713246625"
-        
-        sheet_url = st.text_input("🔗 URL de Google Sheets", value=default_url, help="Pega la URL de tu Google Sheet aquí")
-        
-        col_info, col_load = st.columns([2, 1])
-        with col_info:
-            st.info("💡 El Google Sheet debe estar configurado como 'Público en la web' para poder acceder")
-        
-        with col_load:
-            if st.button("📥 Cargar desde Google Sheets", type="primary"):
-                if sheet_url:
-                    with st.spinner("🔄 Cargando palabras desde Google Sheets..."):
-                        df_google = cargar_desde_google_sheets(sheet_url)
-                        
-                        if df_google is not None:
-                            st.success(f"📊 Se cargaron {len(df_google)} filas desde Google Sheets")
-                            st.dataframe(df_google.head())
-                            
-                            # Procesar similar al CSV
-                            contador = 0
-                            for _, row in df_google.iterrows():
-                                try:
-                                    # Adaptar columnas (pueden tener diferentes nombres)
-                                    ruso = row.get('ruso', row.get('Ruso', ''))
-                                    trans = row.get('trans', row.get('transliteracion', row.get('Transliteracion', '')))
-                                    esp = row.get('esp', row.get('español', row.get('Español', '')))
-                                    mne = row.get('mne', row.get('mnemotecnia', row.get('Mnemotecnia', '')))
-                                    
-                                    if ruso and esp:
-                                        ubicacion = generar_ubicacion_palacio(esp)
-                                        mnemotecnia = mne if mne else generar_mnemotecnia_auto(ruso, esp)
-                                        
-                                        # Verificar si ya existe para evitar duplicados
-                                        existe = db.execute("SELECT id FROM palacio WHERE ruso = ? AND esp = ?", (ruso, esp)).fetchone()
-                                        if not existe:
-                                            db.execute("""INSERT INTO palacio 
-                                                         (ruso, trans, esp, mne, ubicacion, palace_room, imagen_url) 
-                                                         VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                                                     (ruso, trans, esp, mnemotecnia, ubicacion, ubicacion, get_imagen_contextual(esp)))
-                                            contador += 1
-                                except Exception as e:
-                                    continue
-                            
-                            db.commit()
-                            st.success(f"🎉 Se agregaron {contador} palabras nuevas desde Google Sheets!")
-                            
-                            if contador > 0:
-                                # Reiniciar índice de entrenamiento
-                                if 'indice_palabra_actual' in st.session_state:
-                                    del st.session_state.indice_palabra_actual
-                                st.rerun()
-                        else:
-                            st.error("❌ No se pudieron cargar los datos. Verifica que el Google Sheet sea público")
-                else:
-                    st.error("❌ Por favor, ingresa una URL válida de Google Sheets")
-        
-        # Instrucciones
-        with st.expander("📖 ¿Cómo configurar Google Sheets?"):
-            st.markdown("""
-            ### Pasos para configurar tu Google Sheet:
-            
-            1. **Abre tu Google Sheet**
-            2. **Ve a Compartir** (botón右上角)
-            3. **Configura el acceso**: 
-               - En "Acceso general", selecciona "Cualquier persona con el enlace"
-               - En la lista desplegable, selecciona "Lector"
-            4. **Copia la URL** y pégala aquí
-            5. **Asegúrate de que las columnas sean**:
-               - `ruso` o `Ruso`
-               - `trans` o `transliteracion` 
-               - `esp` o `español`
-               - `mne` o `mnemotecnia` (opcional)
-            
-            ### Formato recomendado:
-            | ruso | trans | esp | mne |
-            |------|-------|-----|-----|
-            | привет | priviet | hola | un jet privado |
-            | дом | dom | casa | un domo |
-            """)
+        # Buscador sencillo
+        search = st.text_input("Buscar palabra en el palacio...")
+        if search:
+            df_total = df_total[df_total['ruso'].str.contains(search) | df_total['esp'].str.contains(search)]
 
-# --- VISTA: NEURO-PROGRAMACIÓN MEJORADA ---
-elif st.session_state.vista == 'Neuro':
-    st.header("🧠 Neuro-Programación Avanzada")
-    
-    st.markdown("""
-    <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-        <h2>🧬 Técnicas de Reprogramación Inconsciente</h2>
-        <p>Accede a tu potencial máximo con técnicas neuro-científicas probadas</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Estadísticas de progreso mejoradas
-    st.subheader("📊 Tu Progreso Neuro-Lingüístico")
-    
-    total = db.execute("SELECT COUNT(*) FROM palacio").fetchone()[0]
-    memorizadas = db.execute("SELECT COUNT(*) FROM palacio WHERE estado = 'memorizado'").fetchone()[0]
-    repaso = db.execute("SELECT COUNT(*) FROM palacio WHERE estado = 'repasar'").fetchone()[0]
-    progreso = (memorizadas / total * 100) if total > 0 else 0
-    
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("📚 Total", total)
-    with col2:
-        st.metric("✅ Dominadas", memorizadas)
-    with col3:
-        st.metric("� Repaso", repaso)
-    with col4:
-        st.metric("�� Progreso", f"{progreso:.1f}%")
-    
-    # Barra de progreso con colores
-    st.progress(progreso / 100)
-    
-    # Nivel de maestría
-    if progreso >= 80:
-        st.success("🏆 ¡Nivel EXPERTO! Dominas el ruso avanzado")
-    elif progreso >= 60:
-        st.info("🎯 Nivel INTERMEDIO - Buen progreso")
-    elif progreso >= 40:
-        st.warning("📚 Nivel PRINCIPIANTE - Sigue adelante")
-    else:
-        st.error("🌱 Nivel NOVATO - Empieza tu viaje")
-    
-    st.divider()
-    
-    # SECCIÓN DE PROGRAMACIÓN MEJORADA
-    st.subheader("🎯 Sesiones de Programación")
-    
-    # Obtener palabras para programación
-    df_programacion = pd.read_sql_query("SELECT * FROM palacio ORDER BY id ASC LIMIT 10", db)
-    
-    if not df_programacion.empty:
-        st.info("🎧 Ponte auriculares y relájate. Esta sesión programará tu inconsciente.")
-        
-        # Modo de programación
-        modo_programacion = st.radio("Elige el modo de programación:", 
-                                    ["🎯 Individual", "🌊 Secuencial", "🚀 Intensiva"],
-                                    key="modo_programacion")
-        
-        if modo_programacion == "🎯 Individual":
-            # Programación individual mejorada
-            st.markdown("#### 🎯 Programación Individual")
+        # Lista visual del palacio
+        for _, fila in df_total.iterrows():
+            color = "#D1FAE5" if fila['estado'] == 'memorizado' else "#FEE2E2"
+            texto_estado = "✅ MEMORIZADA" if fila['estado'] == 'memorizado' else "⏳ PENDIENTE"
             
-            palabra_seleccionada = st.selectbox(
-                "Selecciona una palabra para programar:",
-                options=df_programacion['esp'].tolist(),
-                format_func=lambda x: f"🇷🇺 {df_programacion[df_programacion['esp'] == x]['ruso'].iloc[0]} - 🇪🇸 {x}"
-            )
-            
-            palabra = df_programacion[df_programacion['esp'] == palabra_seleccionada].iloc[0]
-            
-            # Mostrar información completa
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown(f"""
-                <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <h3>🇷🇺 {palabra['ruso']}</h3>
-                    <p><strong>Transliteración:</strong> {palabra['trans']}</p>
-                    <p><strong>Significado:</strong> {palabra['esp']}</p>
-                    <p><strong>Ubicación:</strong> {palabra['ubicacion']}</p>
-                    <p><strong>Mnemotecnia:</strong> {palabra['mne']}</p>
+            st.markdown(f"""
+                <div style="background-color: {color}; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ccc;">
+                    <span style="float: right;" class="status-tag">{texto_estado}</span>
+                    <b style="font-size: 18px;">{fila['ruso']}</b> — {fila['esp']}<br>
+                    <small>📍 {fila['ubicacion']} | 💭 {fila['mne']}</small>
                 </div>
                 """, unsafe_allow_html=True)
+
+# --- VISTA: CARGAR ---
+elif st.session_state.vista == 'Cargar':
+    st.subheader("📥 Cargar Nuevas Palabras")
+    archivo = st.file_uploader("Sube tu CSV (columnas: ruso, trans, esp, mne, ubicacion)", type=['csv'])
+    
+    if archivo:
+        try:
+            nuevo_df = pd.read_csv(archivo)
+            # Limpieza de nombres de columnas
+            nuevo_df.columns = [c.lower().strip() for c in nuevo_df.columns]
+            cols_necesarias = ['ruso', 'trans', 'esp', 'mne', 'ubicacion']
             
-            with col2:
-                # Imagen contextual
-                imagen_url = get_imagen_contextual(palabra['esp'])
-                timestamp = int(time.time())
-                imagen_url_con_timestamp = f"{imagen_url}&t={timestamp}"
-                
-                try:
-                    st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra['esp']}", output_format="JPEG")
-                except:
-                    st.warning("⚠️ Imagen no disponible")
-            
-            # Controles de programación
-            st.markdown("#### 🎛️ Controles de Programación")
-            
-            col_prog1, col_prog2, col_prog3 = st.columns(3)
-            
-            with col_prog1:
-                if st.button(f"🧠 Programar '{palabra['ruso']}'", key=f"programar_individual_{palabra['id']}", use_container_width=True, type="primary"):
-                    # Audio subliminal completo
-                    audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
-                    if audio_subliminal:
-                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
-                        st.success(f"🧠 Programación activa: {palabra['ubicacion']} ↔ {palabra['ruso']} ↔ {palabra['esp']}")
-                        
-                        # Audio de pronunciación
-                        audio_ruso = get_audio_pronunciacion(palabra['ruso'])
-                        if audio_ruso:
-                            st.audio(audio_ruso, format='audio/mp3', autoplay=True)
-                    else:
-                        st.error("❌ Error generando programación")
-            
-            with col_prog2:
-                if st.button(f"🔊 Pronunciación", key=f"pronunciacion_individual_{palabra['id']}", use_container_width=True):
-                    audio_ruso = get_audio_pronunciacion(palabra['ruso'])
-                    if audio_ruso:
-                        st.audio(audio_ruso, format='audio/mp3', autoplay=True)
-                        st.success("🔊 Escuchando pronunciación rusa")
-            
-            with col_prog3:
-                if st.button(f"💫 Reforzar", key=f"reforzar_individual_{palabra['id']}", use_container_width=True):
-                    # Doble programación
-                    audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
-                    if audio_subliminal:
-                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
-                        st.success("💫 Refuerzo triple activado")
-                        time.sleep(2)
-                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
-        
-        elif modo_programacion == "🌊 Secuencial":
-            # Programación secuencial
-            st.markdown("#### 🌊 Programación Secuencial")
-            st.info("🔄 Las palabras se programarán automáticamente una tras otra")
-            
-            if 'programacion_secuencial_indice' not in st.session_state:
-                st.session_state.programacion_secuencial_indice = 0
-            
-            if st.session_state.programacion_secuencial_indice < len(df_programacion):
-                palabra_actual = df_programacion.iloc[st.session_state.programacion_secuencial_indice]
-                
-                st.markdown(f"**Programando palabra {st.session_state.programacion_secuencial_indice + 1} de {len(df_programacion)}**")
-                st.markdown(f"#### 🇷🇺 {palabra_actual['ruso']} - 🇪🇸 {palabra_actual['esp']}")
-                
-                # Mostrar imagen
-                imagen_url = get_imagen_contextual(palabra_actual['esp'])
-                timestamp = int(time.time())
-                imagen_url_con_timestamp = f"{imagen_url}&t={timestamp}"
-                
-                try:
-                    st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra_actual['esp']}", output_format="JPEG")
-                except:
-                    st.warning("⚠️ Imagen no disponible")
-                
-                # Programación automática
-                if st.button("🚀 Iniciar Programación Secuencial", key="iniciar_secuencial", use_container_width=True, type="primary"):
-                    # Programar palabra actual
-                    audio_subliminal = generar_audio_subliminal(palabra_actual['ruso'], palabra_actual['esp'], palabra_actual['mne'], palabra_actual['ubicacion'])
-                    if audio_subliminal:
-                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
-                        
-                        # Avanzar automáticamente después de 5 segundos
-                        time.sleep(5)
-                        st.session_state.programacion_secuencial_indice += 1
-                        st.rerun()
-                
-                # Controles manuales
-                col_sec1, col_sec2 = st.columns(2)
-                
-                with col_sec1:
-                    if st.button("⏭️ Siguiente", key="siguiente_secuencial", use_container_width=True):
-                        st.session_state.programacion_secuencial_indice += 1
-                        st.rerun()
-                
-                with col_sec2:
-                    if st.button("🔄 Reiniciar", key="reiniciar_secuencial", use_container_width=True):
-                        st.session_state.programacion_secuencial_indice = 0
-                        st.rerun()
+            if all(c in nuevo_df.columns for c in cols_necesarias):
+                df_to_save = nuevo_df[cols_necesarias].copy()
+                df_to_save['estado'] = 'nuevo'
+                df_to_save.to_sql('palacio', db, if_exists='append', index=False)
+                st.success(f"¡{len(df_to_save)} palabras añadidas al palacio!")
             else:
-                st.success("🎉 ¡Programación secuencial completada!")
-                if st.button("🔄 Reiniciar programación", key="reiniciar_programacion"):
-                    st.session_state.programacion_secuencial_indice = 0
-                    st.rerun()
-        
-        else:  # 🚀 Intensiva
-            # Programación intensiva
-            st.markdown("#### 🚀 Programación Intensiva")
-            st.warning("⚡ Modo intensivo - Todas las palabras seguidas")
-            
-            if st.button("🚀 INICIAR PROGRAMACIÓN INTENSIVA", key="iniciar_intensiva", use_container_width=True, type="primary"):
-                st.info("🧠 Iniciando programación intensiva de todas las palabras...")
-                
-                # Programar todas las palabras seguidas
-                for i, (_, palabra) in enumerate(df_programacion.iterrows()):
-                    st.markdown(f"**{i+1}/{len(df_programacion)}** - 🇷🇺 {palabra['ruso']} - 🇪🇸 {palabra['esp']}")
-                    
-                    # Audio subliminal
-                    audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
-                    if audio_subliminal:
-                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
-                        time.sleep(3)  # Pausa entre palabras
-                
-                st.success("🎉 ¡Programación intensiva completada!")
-    
-    else:
-        st.warning("⚠️ No hay palabras disponibles para programación. Carga algunas palabras primero.")
-    
-    # SECCIÓN DE TÉCNICAS AVANZADAS
-    st.divider()
-    st.subheader("🧬 Técnicas Avanzadas")
-    
-    col_tec1, col_tec2 = st.columns(2)
-    
-    with col_tec1:
-        st.markdown("""
-        <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
-            <h3>🎯 Visualización Guiada</h3>
-            <p>Cierra los ojos y visualiza cada palabra en su ubicación del palacio mientras escuchas el audio.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col_tec2:
-        st.markdown("""
-        <div class="card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
-            <h3>🌊 Ondas Alpha</h3>
-            <p>Escucha en estado relajado para máxima absorción subconsciente.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Recomendaciones personalizadas
-    st.markdown("---")
-    st.subheader("💡 Recomendaciones Personalizadas")
-    
-    if progreso < 30:
-        st.info("🌱 **Recomendación:** Empieza con programación individual para construir bases sólidas")
-    elif progreso < 60:
-        st.info("🎯 **Recomendación:** Usa programación secuencial para consolidar tu aprendizaje")
-    else:
-        st.info("🚀 **Recomendación:** Programa intensiva para dominio avanzado")
-    
-    # Sesión de programación inconsciente
-    st.subheader("🎯 Sesión de Programación")
-    
-    # Obtener palabras para programación
-    df_programacion = pd.read_sql_query("SELECT * FROM palacio ORDER BY id ASC LIMIT 5", db)
-    
-    if not df_programacion.empty:
-        st.info("🎧 Ponte auriculares y relájate. Esta sesión programará tu inconsciente.")
-        
-        for _, palabra in df_programacion.iterrows():
-            with st.expander(f"🧠 {palabra['ruso']} - {palabra['esp']}", expanded=False):
-                # Mostrar imagen contextual primero con timestamp para tiempo real
-                imagen_url = get_imagen_contextual(palabra['esp'])
-                timestamp = int(time.time())
-                imagen_url_con_timestamp = f"{imagen_url}&t={timestamp}"
-                # Mostrar imagen optimizada para iOS - SOLUCIÓN DEFINITIVA
-                try:
-                    # Verificar que la URL sea válida
-                    if imagen_url_con_timestamp and imagen_url_con_timestamp.startswith('http'):
-                        st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra['esp']}", output_format="JPEG")
-                    else:
-                        raise ValueError("URL de imagen inválida")
-                        
-                except Exception as e:
-                    # Imágenes de respaldo para Neuro
-                    backup_images = [
-                        "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop",
-                        "https://images.pexels.com/photos/1108571/pexels-photo-1108571.jpeg?w=400&h=300&fit=crop"
-                    ]
-                    
-                    # Intentar con imágenes de respaldo
-                    imagen_cargada = False
-                    for backup_url in backup_images:
-                        try:
-                            st.image(backup_url, use_container_width=True, caption=f"🖼️ {palabra['esp']} (respaldo)", output_format="JPEG")
-                            imagen_cargada = True
-                            break
-                        except:
-                            continue
-                    
-                    if not imagen_cargada:
-                        st.warning("⚠️ Imagen no disponible en modo Neuro")
-                
-                st.write(f"**🏰 Ubicación:** {palabra['ubicacion']}")
-                st.write(f"**💭 Mnemotecnia:** {palabra['mne']}")
-                
-                # Audio de programación mejorado
-                if st.button(f"🎵 Programar '{palabra['ruso']}'", key=f"programar_{palabra['id']}"):
-                    # Audio subliminal completo con conexión palacio-mnemotecnia
-                    audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
-                    if audio_subliminal:
-                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
-                        st.success(f"🧠 Programación activa: {palabra['ubicacion']} ↔ {palabra['ruso']} ↔ {palabra['esp']}")
-                        
-                        # Audio de pronunciación rusa
-                        audio_ruso = get_audio_pronunciacion(palabra['ruso'])
-                        if audio_ruso:
-                            st.audio(audio_ruso, format='audio/mp3', autoplay=True)
-                    else:
-                        st.error("Error generando audio de programación")
-                    
-                    # Visualización de la conexión
-                    st.markdown(f"""
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                                color: white; padding: 15px; border-radius: 10px; margin: 10px 0;">
-                        <strong>🧠 Conexión Neural:</strong><br>
-                        🏰 {palabra['ubicacion']} → 🇷🇺 {palabra['ruso']} → 🇪🇸 {palabra['esp']}<br>
-                        💭 {palabra['mne']}
-                    </div>
-                    """, unsafe_allow_html=True)
-    
-    # Técnicas de visualización
-    st.subheader("👁️ Técnicas de Visualización")
-    
-    with st.expander("🏰 Técnica del Palacio Mental"):
-        st.write("""
-        1. **Cierra los ojos** y respira profundamente
-        2. **Visualiza tu palacio** con todos sus detalles
-        3. **Ubica cada palabra** en su sala correspondiente
-        4. **Camina mentalmente** por el palacio visitando cada palabra
-        5. **Repite en voz alta** mientras visualizas
-        """)
-    
-    with st.expander("🌊 Técnica de Onda Alpha"):
-        st.write("""
-        1. **Encuentra un lugar tranquilo**
-        2. **Escucha música relajante** (432 Hz recomendado)
-        3. **Repite las palabras** en estado de relajación
-        4. **Visualiza escenas** donde usas las palabras
-        5. **Siente la emoción** de hablar ruso fluidamente
-        """)
-    
-    # Configuración de sesión
-    st.subheader("⚙️ Configuración de Sesión")
-    
-    session_duration = st.slider("⏱️ Duración de sesión (minutos):", 5, 60, 15)
-    words_per_session = st.slider("📝 Palabras por sesión:", 1, 20, 5)
-    
-    if st.button("🚀 Iniciar Sesión Neuro", type="primary"):
-        st.success(f"🎯 Sesión iniciada: {words_per_session} palabras por {session_duration} minutos")
-        st.info("💡 Recuerda: La consistencia es más importante que la intensidad")
+                st.error("El CSV no tiene las columnas correctas.")
+        except Exception as e:
+            st.error(f"Error al procesar: {e}")
