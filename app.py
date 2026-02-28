@@ -391,34 +391,28 @@ def calcular_siguiente_repaso(dificultad, repeticiones):
 
 def actualizar_palabra(palabra_id, estado, acierto=None):
     """Actualiza estado y dificultad de palabra"""
-    # DEBUG: Mostrar qué se está actualizando
-    st.write(f"DEBUG - Actualizando palabra ID {palabra_id} a estado '{estado}'")
-    
-    if acierto is not None:
-        # Obtener dificultad actual con manejo de NULL
-        resultado = db.execute("SELECT dificultad FROM palacio WHERE id = ?", (palabra_id,)).fetchone()
-        dificultad_actual = resultado[0] if resultado and resultado[0] is not None else 2.5  # Valor por defecto
-        
-        # Actualizar dificultad según respuesta
-        if acierto:
-            nueva_dificultad = max(1.3, dificultad_actual * 0.8)
-            db.execute("UPDATE palacio SET estado = ?, repeticiones = repeticiones + 1, dificultad = ?, ultima_repaso = ? WHERE id = ?", 
-                      (estado, nueva_dificultad, datetime.now().strftime('%Y-%m-%d'), palabra_id))
-            st.write(f"DEBUG - Palabra {palabra_id} actualizada a '{estado}' con acierto")
+    try:
+        if acierto is not None:
+            # Obtener dificultad actual con manejo de NULL
+            resultado = db.execute("SELECT dificultad FROM palacio WHERE id = ?", (palabra_id,)).fetchone()
+            dificultad_actual = resultado[0] if resultado and resultado[0] is not None else 2.5  # Valor por defecto
+            
+            # Actualizar dificultad según respuesta
+            if acierto:
+                nueva_dificultad = max(1.3, dificultad_actual * 0.8)
+                db.execute("UPDATE palacio SET estado = ?, repeticiones = repeticiones + 1, dificultad = ?, ultima_repaso = ? WHERE id = ?", 
+                          (estado, nueva_dificultad, datetime.now().strftime('%Y-%m-%d'), palabra_id))
+            else:
+                nueva_dificultad = min(3.5, dificultad_actual * 1.2)
+                db.execute("UPDATE palacio SET estado = ?, dificultad = ?, repeticiones = 0 WHERE id = ?", (estado, nueva_dificultad, palabra_id))
         else:
-            nueva_dificultad = min(3.5, dificultad_actual * 1.2)
-            db.execute("UPDATE palacio SET estado = ?, dificultad = ?, repeticiones = 0 WHERE id = ?", (estado, nueva_dificultad, palabra_id))
-            st.write(f"DEBUG - Palabra {palabra_id} actualizada a '{estado}' sin acierto")
-    else:
-        db.execute("UPDATE palacio SET estado = ? WHERE id = ?", (estado, palabra_id))
-        st.write(f"DEBUG - Palabra {palabra_id} actualizada a '{estado}' (sin acierto)")
-    
-    db.commit()
-    
-    # Verificar que se actualizó correctamente
-    verificacion = db.execute("SELECT estado FROM palacio WHERE id = ?", (palabra_id,)).fetchone()
-    if verificacion:
-        st.write(f"DEBUG - Verificación: Palabra {palabra_id} ahora tiene estado '{verificacion[0]}'")
+            db.execute("UPDATE palacio SET estado = ? WHERE id = ?", (estado, palabra_id))
+        
+        db.commit()
+        return True
+    except Exception as e:
+        st.error(f"Error actualizando palabra: {e}")
+        return False
 
 # --- FUNCIONES DE AUDIO NEURO ---
 def generar_audio_subliminal(texto_ruso, significado, mnemotecnia, ubicacion):
@@ -571,151 +565,93 @@ if st.session_state.vista == 'Entrenar':
         # Mostrar ubicación en el palacio
         st.markdown(f"🏰 **Sala del Palacio:** {palabra['ubicacion']}")
         
-        # TARJETA PRINCIPAL CON PALABRA RUSA
+        # TARJETA PRINCIPAL CON PALABRA RUSA Y SIGNIFICADO
         st.markdown(f"""
             <div class="card pulse">
                 <h1 style="font-size: 70px; margin-bottom:10px; color: #FF4B4B;">{palabra['ruso']}</h1>
-                <p style="color: #007AFF; font-size: 22px; margin: 0;">{palabra['trans']}</p>
+                <p style="color: #007AFF; font-size: 22px; margin: 5px 0;">{palabra['trans']}</p>
+                <p style="color: #34C759; font-size: 24px; margin: 5px 0; font-weight: bold;">{palabra['esp']}</p>
             </div>
             """, unsafe_allow_html=True)
         
-        # IMAGEN CONTEXTUAL MEJORADA - TIEMPO REAL
-        # Generar imagen nueva cada vez para asegurar tiempo real
-        imagen_url = get_imagen_contextual(palabra['esp'])
+        # SIN IMAGEN CONTEXTUAL - MEJOR RENDIMIENTO EN IPHONE
+        # Eliminado para mejorar rendimiento y sonido
         
-        # Forzar recarga de imagen con timestamp único
-        timestamp = int(time.time())
-        imagen_url_con_timestamp = f"{imagen_url}&t={timestamp}"
+        # SIN IMAGEN - MEJOR RENDIMIENTO PARA IPHONE
+        # Imágenes eliminadas para priorizar audio y rendimiento
         
-        # Contenedor para imagen con contexto
-        st.markdown(f"""
-        <div style="background: white; padding: 20px; border-radius: 15px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h3 style="color: #007AFF; margin-bottom: 15px;">🖼️ Contexto Visual</h3>
-            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">Asocia esta imagen con: <strong>{palabra['esp']}</strong></p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Mostrar imagen optimizada para iOS - SOLUCIÓN DEFINITIVA
-        try:
-            # Verificar que la URL sea válida
-            if imagen_url_con_timestamp and imagen_url_con_timestamp.startswith('http'):
-                # Intentar cargar imagen principal
-                st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🇷🇺 {palabra['ruso']} - {palabra['esp']}", output_format="JPEG")
-                
-                # Botón para recargar imagen si no carga bien
-                if st.button("🔄 Recargar imagen", key="reload_image"):
-                    # Forzar nuevo timestamp
-                    new_timestamp = int(time.time() * 1000)  # Timestamp más único
-                    new_url = f"{imagen_url}&t={new_timestamp}"
-                    st.image(new_url, use_container_width=True, caption=f"🇷🇺 {palabra['ruso']} - {palabra['esp']} (recargada)", output_format="JPEG")
-                    st.success("✅ Imagen recargada")
-            else:
-                raise ValueError("URL de imagen inválida")
-                
-        except Exception as e:
-            st.warning(f"⚠️ No se pudo cargar la imagen principal")
-            # Imágenes de respaldo múltiples
-            backup_images = [
-                "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop",
-                "https://images.pexels.com/photos/1108571/pexels-photo-1108571.jpeg?w=400&h=300&fit=crop",
-                "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?w=400&h=300&fit=crop"
-            ]
-            
-            # Intentar con imágenes de respaldo
-            imagen_cargada = False
-            for i, backup_url in enumerate(backup_images):
-                try:
-                    st.image(backup_url, use_container_width=True, caption=f"🇷🇺 {palabra['ruso']} - {palabra['esp']} (respaldo {i+1})", output_format="JPEG")
-                    imagen_cargada = True
-                    break
-                except:
-                    continue
-            
-            if not imagen_cargada:
-                st.error("❌ No se pudieron cargar las imágenes de respaldo")
-                # Mostrar placeholder visual
-                st.markdown(f"""
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                           color: white; padding: 40px; border-radius: 15px; text-align: center;">
-                    <h2>🇷🇺 {palabra['ruso']}</h2>
-                    <h3>{palabra['esp']}</h3>
-                    <p>📷 Imagen no disponible</p>
-                    <p>Visualiza: {palabra['esp']}</p>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        # Instrucción visual
-        st.markdown(f"""
-        <div style="background: linear-gradient(135deg, #FF6B6B, #FFE66D); color: white; padding: 15px; border-radius: 10px; margin: 10px 0; text-align: center;">
-            <strong>👁️ Visualiza:</strong> Mira la imagen y repite "{palabra['ruso']}" mientras piensas en "{palabra['esp']}"
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # SECCIÓN DE AUDIO - SOLUCIÓN DEFINITIVA PARA iOS
+        # SECCIÓN DE AUDIO - SOLUCIÓN DEFINITIVA PARA IPHONE
         st.markdown("---")
         st.markdown("### 🔊 Audio de Aprendizaje")
         
-        # Estado para controlar audio
-        if 'audio_generado' not in st.session_state:
-            st.session_state.audio_generado = False
-            st.session_state.current_audio = None
+        # Generar audio en tiempo real para iPhone
+        try:
+            # Audio de pronunciación rusa
+            st.markdown("**🇷🇺 Pronunciación Rusa:**")
+            audio_ruso = get_audio_pronunciacion(palabra['ruso'])
+            if audio_ruso:
+                audio_ruso.seek(0)
+                st.audio(audio_ruso, format='audio/mp3', autoplay=False)
+                st.success("✅ Audio ruso listo")
+            else:
+                st.error("❌ Error generando audio ruso")
+            
+            # Audio subliminal
+            st.markdown("**🧠 Programación Subliminal:**")
+            audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
+            if audio_subliminal:
+                audio_subliminal.seek(0)
+                st.audio(audio_subliminal, format='audio/mp3', autoplay=False)
+                st.success("✅ Audio subliminal listo")
+            else:
+                st.error("❌ Error generando audio subliminal")
+                
+        except Exception as e:
+            st.error(f"❌ Error en sistema de audio: {str(e)}")
+            st.info("💡 Recarga la página o usa Safari en iPhone")
         
-        # Generar audios automáticamente al cargar palabra
-        if not st.session_state.audio_generado or st.session_state.get('ultima_palabra_audio') != palabra['ruso']:
-            try:
-                # Audio de pronunciación
-                audio_pronunciacion = get_audio_pronunciacion(palabra['ruso'])
-                
-                # Audio subliminal
-                audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
-                
-                # Audio rítmico
-                tts_ritmo = gTTS(f"{palabra['ruso']}. {palabra['esp']}. {palabra['ruso']}.", lang='ru', slow=True)
-                fp_ritmo = io.BytesIO()
-                tts_ritmo.write_to_fp(fp_ritmo)
-                fp_ritmo.seek(0)
-                
-                # Guardar en session state
-                st.session_state.audio_pronunciacion = audio_pronunciacion
-                st.session_state.audio_subliminal = audio_subliminal
-                st.session_state.audio_ritmo = fp_ritmo
-                st.session_state.audio_generado = True
-                st.session_state.ultima_palabra_audio = palabra['ruso']
-                
-            except Exception as e:
-                st.error(f"Error generando audios: {e}")
+        # INSTRUCCIONES PARA IPHONE
+        st.markdown("---")
+        st.markdown("### 📱 Instrucciones para iPhone:")
+        st.markdown("""
+        - 🔊 **Usa Safari** (no Chrome/Firefox)
+        - 📱 **Activa el sonido** y quita silencio
+        - 🎧 **Usa auriculares** para mejor experiencia
+        - 📶 **WiFi estable** para audio sin interrupciones
+        - 🔄 **Recarga página** si no hay sonido
+        """)
         
-        # Mostrar controles de audio
-        col_audio1, col_audio2, col_audio3 = st.columns(3)
+        # BOTONES DE AUDIO SIMPLIFICADOS PARA IPHONE
+        col_audio1, col_audio2 = st.columns(2)
         
         with col_audio1:
-            if st.button("🔊 PRONUNCIACIÓN", key="btn_pronunciacion", use_container_width=True):
-                if hasattr(st.session_state, 'audio_pronunciacion') and st.session_state.audio_pronunciacion:
-                    st.audio(st.session_state.audio_pronunciacion, format='audio/mp3', autoplay=True)
-                    st.success("� Reproduciendo pronunciación rusa")
-                else:
-                    st.error("❌ Audio no disponible")
+            if st.button("🔊 ESCUCHAR RUSO", key="btn_pronunciacion_simple", use_container_width=True, type="primary"):
+                try:
+                    audio = get_audio_pronunciacion(palabra['ruso'])
+                    if audio:
+                        audio.seek(0)
+                        st.audio(audio, format='audio/mp3', autoplay=True)
+                        st.success("✅ Reproduciendo pronunciación")
+                    else:
+                        st.error("❌ Error generando audio")
+                except Exception as e:
+                    st.error(f"❌ Error: {str(e)}")
         
         with col_audio2:
-            if st.button("🧠 SUBLIMINAL", key="btn_subliminal", use_container_width=True):
-                if hasattr(st.session_state, 'audio_subliminal') and st.session_state.audio_subliminal:
-                    st.audio(st.session_state.audio_subliminal, format='audio/mp3', autoplay=True)
-                    st.info(f"🧠 Programando: {palabra['ubicacion']} ↔ {palabra['ruso']}")
-                else:
-                    st.error("❌ Audio subliminal no disponible")
+            if st.button("🧠 PROGRAMAR", key="btn_subliminal_simple", use_container_width=True):
+                try:
+                    audio = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
+                    if audio:
+                        audio.seek(0)
+                        st.audio(audio, format='audio/mp3', autoplay=True)
+                        st.info(f"🧠 Programando: {palabra['ruso']} ↔ {palabra['esp']}")
+                    else:
+                        st.error("❌ Error generando programación")
+                except Exception as e:
+                    st.error(f"❌ Error: {str(e)}")
         
-        with col_audio3:
-            if st.button("🎵 RITMO", key="btn_ritmo", use_container_width=True):
-                if hasattr(st.session_state, 'audio_ritmo') and st.session_state.audio_ritmo:
-                    st.audio(st.session_state.audio_ritmo, format='audio/mp3', autoplay=True)
-                    st.success("🎵 Reproduciendo ritmo de memorización")
-                else:
-                    st.error("❌ Audio rítmico no disponible")
-        
-        # Reproducción automática opcional
-        auto_play = st.checkbox("🔊 Reproducir pronunciación automáticamente", key="auto_play")
-        if auto_play and hasattr(st.session_state, 'audio_pronunciacion') and st.session_state.audio_pronunciacion:
-            st.audio(st.session_state.audio_pronunciacion, format='audio/mp3', autoplay=True)
+        # SIN AUTOPLAY - MEJOR PARA IPHONE
+        # El usuario debe hacer clic manualmente para reproducir audio
         
         st.divider()
         
@@ -1157,9 +1093,6 @@ elif st.session_state.vista == 'Palacio':
     total_palabras = db.execute("SELECT COUNT(*) FROM palacio").fetchone()[0]
     memorizadas = db.execute("SELECT COUNT(*) FROM palacio WHERE estado = 'memorizado'").fetchone()[0]
     pendientes = total_palabras - memorizadas
-    
-    # Debug: mostrar conteos reales
-    st.write(f"DEBUG - Total: {total_palabras}, Memorizadas: {memorizadas}, Pendientes: {pendientes}")
     
     col1, col2, col3 = st.columns(3)
     with col1:
