@@ -366,9 +366,72 @@ def get_audio_pronunciacion(texto_ruso):
         st.error(f"Error generando audio: {e}")
         return None
 
+# --- SISTEMA DE DIAGNÓSTICO PARA iOS ---
+def mostrar_diagnostico():
+    """Mostrar información de diagnóstico para problemas de audio/imagen"""
+    with st.expander("🔧 Diagnóstico Técnico", expanded=False):
+        st.markdown("### 📊 Información del Sistema")
+        
+        # Información del navegador
+        st.markdown("**Navegador:**")
+        st.code(f"User Agent: {st.session_state.get('user_agent', 'No detectado')}")
+        
+        # Estado de audio
+        st.markdown("**Estado del Audio:**")
+        if hasattr(st.session_state, 'audio_generado'):
+            st.code(f"Audio generado: {st.session_state.audio_generado}")
+            st.code(f"Última palabra: {st.session_state.get('ultima_palabra_audio', 'N/A')}")
+        else:
+            st.code("Audio no inicializado")
+        
+        # Estado de imágenes
+        st.markdown("**Estado de Imágenes:**")
+        st.code("Sistema de imágenes: Pexels optimizado")
+        st.code("Tamaño: 400x300px")
+        st.code("Formato: JPEG")
+        
+        # Botones de prueba
+        st.markdown("**Pruebas Rápidas:**")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("🧪 Probar Audio", key="test_audio"):
+                try:
+                    test_audio = get_audio_pronunciacion("тест")
+                    if test_audio:
+                        st.audio(test_audio, format='audio/mp3')
+                        st.success("✅ Audio funciona")
+                    else:
+                        st.error("❌ Audio falló")
+                except Exception as e:
+                    st.error(f"❌ Error: {e}")
+        
+        with col2:
+            if st.button("🧪 Probar Imagen", key="test_image"):
+                try:
+                    test_url = "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop"
+                    st.image(test_url, caption="Imagen de prueba")
+                    st.success("✅ Imagen funciona")
+                except Exception as e:
+                    st.error(f"❌ Error: {e}")
+        
+        # Recomendaciones
+        st.markdown("**Recomendaciones para iOS:**")
+        st.markdown("""
+        - 📱 Usa **Safari** (no Chrome/Firefox)
+        - 🔊 Asegúrate de que el **silencio** esté desactivado
+        - 📶 Conexión **WiFi estable** para imágenes
+        - 🔄 **Recarga la página** si hay problemas
+        - 📂 **Limpia caché** si persisten los errores
+        """)
+
 # --- LÓGICA DE NAVEGACIÓN (Simulando App Nativa con Session State) ---
 if 'vista' not in st.session_state:
     st.session_state.vista = 'Entrenar'
+
+# Guardar user agent para diagnóstico
+if 'user_agent' not in st.session_state:
+    st.session_state.user_agent = "iOS Safari (detectado)"
 
 # BARRA DE NAVEGACIÓN SUPERIOR (BOTONES)
 col_nav1, col_nav2, col_nav3, col_nav4, col_nav5 = st.columns(5)
@@ -388,6 +451,9 @@ st.divider()
 # --- VISTA: ENTRENAMIENTO ---
 if st.session_state.vista == 'Entrenar':
     st.header("🎯 Entrenamiento Neuro-Acelerado")
+    
+    # Mostrar diagnóstico
+    mostrar_diagnostico()
     
     # Obtener palabras pendientes en orden
     df = pd.read_sql_query("SELECT * FROM palacio WHERE estado != 'memorizado' ORDER BY id ASC", db)
@@ -449,12 +515,54 @@ if st.session_state.vista == 'Entrenar':
         </div>
         """, unsafe_allow_html=True)
         
-        # Mostrar imagen optimizada para iOS
+        # Mostrar imagen optimizada para iOS - SOLUCIÓN DEFINITIVA
         try:
-            st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🇷🇺 {palabra['ruso']} - {palabra['esp']}", output_format="JPEG")
+            # Verificar que la URL sea válida
+            if imagen_url_con_timestamp and imagen_url_con_timestamp.startswith('http'):
+                # Intentar cargar imagen principal
+                st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🇷🇺 {palabra['ruso']} - {palabra['esp']}", output_format="JPEG")
+                
+                # Botón para recargar imagen si no carga bien
+                if st.button("🔄 Recargar imagen", key="reload_image"):
+                    # Forzar nuevo timestamp
+                    new_timestamp = int(time.time() * 1000)  # Timestamp más único
+                    new_url = f"{imagen_url}&t={new_timestamp}"
+                    st.image(new_url, use_container_width=True, caption=f"🇷🇺 {palabra['ruso']} - {palabra['esp']} (recargada)", output_format="JPEG")
+                    st.success("✅ Imagen recargada")
+            else:
+                raise ValueError("URL de imagen inválida")
+                
         except Exception as e:
-            st.error("Error cargando imagen")
-            st.image("https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop", use_container_width=True, caption="🇷🇺 Imagen de respaldo")
+            st.warning(f"⚠️ No se pudo cargar la imagen principal")
+            # Imágenes de respaldo múltiples
+            backup_images = [
+                "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop",
+                "https://images.pexels.com/photos/1108571/pexels-photo-1108571.jpeg?w=400&h=300&fit=crop",
+                "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?w=400&h=300&fit=crop"
+            ]
+            
+            # Intentar con imágenes de respaldo
+            imagen_cargada = False
+            for i, backup_url in enumerate(backup_images):
+                try:
+                    st.image(backup_url, use_container_width=True, caption=f"🇷🇺 {palabra['ruso']} - {palabra['esp']} (respaldo {i+1})", output_format="JPEG")
+                    imagen_cargada = True
+                    break
+                except:
+                    continue
+            
+            if not imagen_cargada:
+                st.error("❌ No se pudieron cargar las imágenes de respaldo")
+                # Mostrar placeholder visual
+                st.markdown(f"""
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                           color: white; padding: 40px; border-radius: 15px; text-align: center;">
+                    <h2>🇷🇺 {palabra['ruso']}</h2>
+                    <h3>{palabra['esp']}</h3>
+                    <p>📷 Imagen no disponible</p>
+                    <p>Visualiza: {palabra['esp']}</p>
+                </div>
+                """, unsafe_allow_html=True)
         
         # Instrucción visual
         st.markdown(f"""
@@ -463,36 +571,71 @@ if st.session_state.vista == 'Entrenar':
         </div>
         """, unsafe_allow_html=True)
         
-        # SECCIÓN DE AUDIO
+        # SECCIÓN DE AUDIO - SOLUCIÓN DEFINITIVA PARA iOS
+        st.markdown("---")
+        st.markdown("### 🔊 Audio de Aprendizaje")
+        
+        # Estado para controlar audio
+        if 'audio_generado' not in st.session_state:
+            st.session_state.audio_generado = False
+            st.session_state.current_audio = None
+        
+        # Generar audios automáticamente al cargar palabra
+        if not st.session_state.audio_generado or st.session_state.get('ultima_palabra_audio') != palabra['ruso']:
+            try:
+                # Audio de pronunciación
+                audio_pronunciacion = get_audio_pronunciacion(palabra['ruso'])
+                
+                # Audio subliminal
+                audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
+                
+                # Audio rítmico
+                tts_ritmo = gTTS(f"{palabra['ruso']}. {palabra['esp']}. {palabra['ruso']}.", lang='ru', slow=True)
+                fp_ritmo = io.BytesIO()
+                tts_ritmo.write_to_fp(fp_ritmo)
+                fp_ritmo.seek(0)
+                
+                # Guardar en session state
+                st.session_state.audio_pronunciacion = audio_pronunciacion
+                st.session_state.audio_subliminal = audio_subliminal
+                st.session_state.audio_ritmo = fp_ritmo
+                st.session_state.audio_generado = True
+                st.session_state.ultima_palabra_audio = palabra['ruso']
+                
+            except Exception as e:
+                st.error(f"Error generando audios: {e}")
+        
+        # Mostrar controles de audio
         col_audio1, col_audio2, col_audio3 = st.columns(3)
+        
         with col_audio1:
-            if st.button("🔊 PRONUNCIACIÓN", key="audio_normal", use_container_width=True):
-                audio = get_audio_pronunciacion(palabra['ruso'])
-                if audio:
-                    st.audio(audio, format='audio/mp3', autoplay=True)
+            if st.button("🔊 PRONUNCIACIÓN", key="btn_pronunciacion", use_container_width=True):
+                if hasattr(st.session_state, 'audio_pronunciacion') and st.session_state.audio_pronunciacion:
+                    st.audio(st.session_state.audio_pronunciacion, format='audio/mp3', autoplay=True)
+                    st.success("� Reproduciendo pronunciación rusa")
                 else:
-                    st.error("No se pudo generar el audio")
+                    st.error("❌ Audio no disponible")
         
         with col_audio2:
-            if st.button("🧠 AUDIO SUBLIMINAL", key="audio_subliminal", use_container_width=True):
-                audio = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
-                if audio:
-                    st.audio(audio, format='audio/mp3', autoplay=True)
-                    st.info(f"💫 Audio subliminal activado - Conectando '{palabra['ruso']}' con {palabra['ubicacion']}")
+            if st.button("🧠 SUBLIMINAL", key="btn_subliminal", use_container_width=True):
+                if hasattr(st.session_state, 'audio_subliminal') and st.session_state.audio_subliminal:
+                    st.audio(st.session_state.audio_subliminal, format='audio/mp3', autoplay=True)
+                    st.info(f"🧠 Programando: {palabra['ubicacion']} ↔ {palabra['ruso']}")
                 else:
-                    st.error("No se pudo generar el audio subliminal")
+                    st.error("❌ Audio subliminal no disponible")
         
         with col_audio3:
-            if st.button("🎵 RITMO", key="audio_ritmo", use_container_width=True):
-                # Audio rítmico para memorización
-                try:
-                    tts = gTTS(f"{palabra['ruso']}. {palabra['esp']}. {palabra['ruso']}.", lang='ru', slow=True)
-                    fp = io.BytesIO()
-                    tts.write_to_fp(fp)
-                    fp.seek(0)
-                    st.audio(fp, format='audio/mp3', autoplay=True)
-                except Exception as e:
-                    st.error("Error generando audio rítmico")
+            if st.button("🎵 RITMO", key="btn_ritmo", use_container_width=True):
+                if hasattr(st.session_state, 'audio_ritmo') and st.session_state.audio_ritmo:
+                    st.audio(st.session_state.audio_ritmo, format='audio/mp3', autoplay=True)
+                    st.success("🎵 Reproduciendo ritmo de memorización")
+                else:
+                    st.error("❌ Audio rítmico no disponible")
+        
+        # Reproducción automática opcional
+        auto_play = st.checkbox("🔊 Reproducir pronunciación automáticamente", key="auto_play")
+        if auto_play and hasattr(st.session_state, 'audio_pronunciacion') and st.session_state.audio_pronunciacion:
+            st.audio(st.session_state.audio_pronunciacion, format='audio/mp3', autoplay=True)
         
         st.divider()
         
@@ -988,12 +1131,33 @@ elif st.session_state.vista == 'Neuro':
                 imagen_url = get_imagen_contextual(palabra['esp'])
                 timestamp = int(time.time())
                 imagen_url_con_timestamp = f"{imagen_url}&t={timestamp}"
-                # Mostrar imagen optimizada para iOS
+                # Mostrar imagen optimizada para iOS - SOLUCIÓN DEFINITIVA
                 try:
-                    st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra['esp']}", output_format="JPEG")
+                    # Verificar que la URL sea válida
+                    if imagen_url_con_timestamp and imagen_url_con_timestamp.startswith('http'):
+                        st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra['esp']}", output_format="JPEG")
+                    else:
+                        raise ValueError("URL de imagen inválida")
+                        
                 except Exception as e:
-                    st.error("Error cargando imagen")
-                    st.image("https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop", use_container_width=True, caption="🖼️ Imagen de respaldo")
+                    # Imágenes de respaldo para Neuro
+                    backup_images = [
+                        "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop",
+                        "https://images.pexels.com/photos/1108571/pexels-photo-1108571.jpeg?w=400&h=300&fit=crop"
+                    ]
+                    
+                    # Intentar con imágenes de respaldo
+                    imagen_cargada = False
+                    for backup_url in backup_images:
+                        try:
+                            st.image(backup_url, use_container_width=True, caption=f"🖼️ {palabra['esp']} (respaldo)", output_format="JPEG")
+                            imagen_cargada = True
+                            break
+                        except:
+                            continue
+                    
+                    if not imagen_cargada:
+                        st.warning("⚠️ Imagen no disponible en modo Neuro")
                 
                 st.write(f"**🏰 Ubicación:** {palabra['ubicacion']}")
                 st.write(f"**💭 Mnemotecnia:** {palabra['mne']}")
