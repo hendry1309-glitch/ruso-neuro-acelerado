@@ -391,6 +391,9 @@ def calcular_siguiente_repaso(dificultad, repeticiones):
 
 def actualizar_palabra(palabra_id, estado, acierto=None):
     """Actualiza estado y dificultad de palabra"""
+    # DEBUG: Mostrar qué se está actualizando
+    st.write(f"DEBUG - Actualizando palabra ID {palabra_id} a estado '{estado}'")
+    
     if acierto is not None:
         # Obtener dificultad actual con manejo de NULL
         resultado = db.execute("SELECT dificultad FROM palacio WHERE id = ?", (palabra_id,)).fetchone()
@@ -399,14 +402,23 @@ def actualizar_palabra(palabra_id, estado, acierto=None):
         # Actualizar dificultad según respuesta
         if acierto:
             nueva_dificultad = max(1.3, dificultad_actual * 0.8)
-            db.execute("UPDATE palacio SET repeticiones = repeticiones + 1, dificultad = ?, ultima_repaso = ? WHERE id = ?", 
-                      (nueva_dificultad, datetime.now().strftime('%Y-%m-%d'), palabra_id))
+            db.execute("UPDATE palacio SET estado = ?, repeticiones = repeticiones + 1, dificultad = ?, ultima_repaso = ? WHERE id = ?", 
+                      (estado, nueva_dificultad, datetime.now().strftime('%Y-%m-%d'), palabra_id))
+            st.write(f"DEBUG - Palabra {palabra_id} actualizada a '{estado}' con acierto")
         else:
             nueva_dificultad = min(3.5, dificultad_actual * 1.2)
-            db.execute("UPDATE palacio SET dificultad = ?, repeticiones = 0 WHERE id = ?", (nueva_dificultad, palabra_id))
+            db.execute("UPDATE palacio SET estado = ?, dificultad = ?, repeticiones = 0 WHERE id = ?", (estado, nueva_dificultad, palabra_id))
+            st.write(f"DEBUG - Palabra {palabra_id} actualizada a '{estado}' sin acierto")
     else:
         db.execute("UPDATE palacio SET estado = ? WHERE id = ?", (estado, palabra_id))
+        st.write(f"DEBUG - Palabra {palabra_id} actualizada a '{estado}' (sin acierto)")
+    
     db.commit()
+    
+    # Verificar que se actualizó correctamente
+    verificacion = db.execute("SELECT estado FROM palacio WHERE id = ?", (palabra_id,)).fetchone()
+    if verificacion:
+        st.write(f"DEBUG - Verificación: Palabra {palabra_id} ahora tiene estado '{verificacion[0]}'")
 
 # --- FUNCIONES DE AUDIO NEURO ---
 def generar_audio_subliminal(texto_ruso, significado, mnemotecnia, ubicacion):
