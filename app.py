@@ -872,6 +872,15 @@ if st.session_state.vista == 'Entrenar':
                     st.rerun()
             
             with col_btn3:
+                if st.button("🔄 REPETIR MÁS TARDE", key="btn_repetir", use_container_width=True):
+                    actualizar_palabra(palabra['id'], 'repasar')
+                    st.session_state.revelado = False
+                    st.info("⏰ Palabra programada para repasar más tarde")
+                    time.sleep(1)
+                    # Avanzar automáticamente
+                    if st.session_state.indice_palabra_actual < len(df) - 1:
+                        st.session_state.indice_palabra_actual += 1
+                    st.rerun()
 
 # --- VISTA: REPASO INTELIGENTE MEJORADO ---
 elif st.session_state.vista == 'Repaso':
@@ -1394,7 +1403,7 @@ elif st.session_state.vista == 'Neuro':
     with col3:
         st.metric("� Repaso", repaso)
     with col4:
-        st.metric("�📈 Progreso", f"{progreso:.1f}%")
+        st.metric("�� Progreso", f"{progreso:.1f}%")
     
     # Barra de progreso con colores
     st.progress(progreso / 100)
