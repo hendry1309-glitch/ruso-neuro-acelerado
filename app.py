@@ -224,90 +224,158 @@ def generar_mnemotecnia_auto(ruso, esp):
     return f"Visualiza: {esp} mientras escuchas '{ruso}' en un ambiente ruso"
 
 def get_imagen_contextual(palabra_esp):
-    """Obtiene imagen contextual específica optimizada para iOS"""
+    """Obtiene imagen contextual usando búsqueda de Google optimizada para acciones y verbos"""
     
-    # URLs optimizadas para iOS (más pequeñas y confiables)
-    imagenes_especificas = {
-        # Saludos y personas
-        "hola": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?w=400&h=300&fit=crop",
-        "adios": "https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?w=400&h=300&fit=crop",
-        "gracias": "https://images.pexels.com/photos/2690323/pexels-photo-2690323.jpeg?w=400&h=300&fit=crop",
-        "por favor": "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?w=400&h=300&fit=crop",
-        "perdon": "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?w=400&h=300&fit=crop",
+    # Palabras clave para acciones/verbos (prioridad alta)
+    acciones_verbos = {
+        # Verbos de movimiento
+        "correr": "https://source.unsplash.com/400x300/?running,person,action",
+        "caminar": "https://source.unsplash.com/400x300/?walking,person,street", 
+        "saltar": "https://source.unsplash.com/400x300/?jumping,action,sport",
+        "nadar": "https://source.unsplash.com/400x300/?swimming,pool,water",
+        "volar": "https://source.unsplash.com/400x300/?flying,plane,sky",
+        "conducir": "https://source.unsplash.com/400x300/?driving,car,road",
+        "bailar": "https://source.unsplash.com/400x300/?dancing,people,music",
+        "cantar": "https://source.unsplash.com/400x300/?singing,microphone,performance",
         
-        # Lugares
-        "casa": "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?w=400&h=300&fit=crop",
-        "cocina": "https://images.pexels.com/photos/1579739/pexels-photo-1579739.jpeg?w=400&h=300&fit=crop",
-        "habitacion": "https://images.pexels.com/photos/1642128/pexels-photo-1642128.jpeg?w=400&h=300&fit=crop",
-        "baño": "https://images.pexels.com/photos/269077/pexels-photo-269077.jpeg?w=400&h=300&fit=crop",
-        "jardin": "https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?w=400&h=300&fit=crop",
+        # Verbos de comunicación
+        "hablar": "https://source.unsplash.com/400x300/?speaking,people,conversation",
+        "escuchar": "https://source.unsplash.com/400x300/?listening,ear,person",
+        "leer": "https://source.unsplash.com/400x300/?reading,book,person",
+        "escribir": "https://source.unsplash.com/400x300/?writing,pen,desk",
+        "llamar": "https://source.unsplash.com/400x300/?calling,phone,communication",
         
-        # Comida y bebida
-        "agua": "https://images.pexels.com/photos/327090/pexels-photo-327090.jpeg?w=400&h=300&fit=crop",
-        "comida": "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?w=400&h=300&fit=crop",
-        "pan": "https://images.pexels.com/photos/209540/pexels-photo-209540.jpeg?w=400&h=300&fit=crop",
-        "cafe": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?w=400&h=300&fit=crop",
+        # Verbos de alimentación
+        "comer": "https://source.unsplash.com/400x300/?eating,food,meal",
+        "beber": "https://source.unsplash.com/400x300/?drinking,water,beverage",
+        "cocinar": "https://source.unsplash.com/400x300/?cooking,kitchen,food",
         
-        # Animales
-        "perro": "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?w=400&h=300&fit=crop",
-        "gato": "https://images.pexels.com/photos/1170989/pexels-photo-1170989.jpeg?w=400&h=300&fit=crop",
-        "caballo": "https://images.pexels.com/photos/1996333/pexels-photo-1996333.jpeg?w=400&h=300&fit=crop",
+        # Verbos diarios
+        "trabajar": "https://source.unsplash.com/400x300/?working,office,computer",
+        "estudiar": "https://source.unsplash.com/400x300/?studying,books,learning",
+        "dormir": "https://source.unsplash.com/400x300/?sleeping,bed,rest",
+        "despertar": "https://source.unsplash.com/400x300/?waking,morning,sunlight",
+        "duchar": "https://source.unsplash.com/400x300/?showering,bathroom,water",
+        "vestir": "https://source.unsplash.com/400x300/?dressing,clothes,fashion",
         
-        # Naturaleza
-        "arbol": "https://images.pexels.com/photos/2690323/pexels-photo-2690323.jpeg?w=400&h=300&fit=crop",
-        "flor": "https://images.pexels.com/photos/36764/pexels-photo-36764.jpeg?w=400&h=300&fit=crop",
-        "sol": "https://images.pexels.com/photos/1509508/pexels-photo-1509508.jpeg?w=400&h=300&fit=crop",
-        "luna": "https://images.pexels.com/photos/186980/pexels-photo-186980.jpeg?w=400&h=300&fit=crop",
+        # Verbos sociales
+        "amar": "https://source.unsplash.com/400x300/?love,couple,heart",
+        "ayudar": "https://source.unsplash.com/400x300/?helping,people,support",
+        "jugar": "https://source.unsplash.com/400x300/?playing,game,fun",
+        "reir": "https://source.unsplash.com/400x300/?laughing,people,happy",
+        "llorar": "https://source.unsplash.com/400x300/?crying,tears,sad",
         
-        # Transporte
-        "coche": "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?w=400&h=300&fit=crop",
-        "avion": "https://images.pexels.com/photos/102986/pexels-photo-102986.jpeg?w=400&h=300&fit=crop",
-        "tren": "https://images.pexels.com/photos/50711/pexels-photo-50711.jpeg?w=400&h=300&fit=crop",
+        # Verbos de creación
+        "crear": "https://source.unsplash.com/400x300/?creating,art,hands",
+        "construir": "https://source.unsplash.com/400x300/?building,construction,tools",
+        "pintar": "https://source.unsplash.com/400x300/?painting,art,canvas",
+        "dibujar": "https://source.unsplash.com/400x300/?drawing,pencil,paper",
         
-        # Acciones
-        "correr": "https://images.pexels.com/photos/1503921/pexels-photo-1503921.jpeg?w=400&h=300&fit=crop",
-        "caminar": "https://images.pexels.com/photos/3821962/pexels-photo-3821962.jpeg?w=400&h=300&fit=crop",
-        "comer": "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?w=400&h=300&fit=crop",
-        "beber": "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?w=400&h=300&fit=crop",
-        "dormir": "https://images.pexels.com/photos/1589329/pexels-photo-1589329.jpeg?w=400&h=300&fit=crop",
-        
-        # Emociones
-        "feliz": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?w=400&h=300&fit=crop",
-        "triste": "https://images.pexels.com/photos/269077/pexels-photo-269077.jpeg?w=400&h=300&fit=crop",
-        "enojado": "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?w=400&h=300&fit=crop",
+        # Saludos y expresiones
+        "hola": "https://source.unsplash.com/400x300/?hello,waving,greeting",
+        "adios": "https://source.unsplash.com/400x300/?goodbye,waving,farewell",
+        "gracias": "https://source.unsplash.com/400x300/?thank,gratitude,appreciation",
+        "por favor": "https://source.unsplash.com/400x300/?please,polite,request",
+        "perdon": "https://source.unsplash.com/400x300/?sorry,apology,forgiveness",
     }
     
-    # Buscar palabra exacta primero
-    palabra_lower = palabra_esp.lower().strip()
-    if palabra_lower in imagenes_especificas:
-        return imagenes_especificas[palabra_lower]
+    # Objetos y lugares (prioridad media)
+    objetos_lugares = {
+        # Lugares
+        "casa": "https://source.unsplash.com/400x300/?house,home,building",
+        "cocina": "https://source.unsplash.com/400x300/?kitchen,cooking,food",
+        "habitacion": "https://source.unsplash.com/400x300/?bedroom,sleep,rest",
+        "baño": "https://source.unsplash.com/400x300/?bathroom,hygiene,clean",
+        "jardin": "https://source.unsplash.com/400x300/?garden,flowers,nature",
+        "escuela": "https://source.unsplash.com/400x300/?school,education,learning",
+        "hospital": "https://source.unsplash.com/400x300/?hospital,medical,health",
+        "tienda": "https://source.unsplash.com/400x300/?shop,store,shopping",
+        
+        # Comida y bebida
+        "agua": "https://source.unsplash.com/400x300/?water,drink,hydration",
+        "comida": "https://source.unsplash.com/400x300/?food,meal,delicious",
+        "pan": "https://source.unsplash.com/400x300/?bread,bakery,fresh",
+        "cafe": "https://source.unsplash.com/400x300/?coffee,drink,morning",
+        "leche": "https://source.unsplash.com/400x300/?milk,drink,white",
+        
+        # Animales
+        "perro": "https://source.unsplash.com/400x300/?dog,pet,animal",
+        "gato": "https://source.unsplash.com/400x300/?cat,pet,feline",
+        "caballo": "https://source.unsplash.com/400x300/?horse,animal,riding",
+        "pajaro": "https://source.unsplash.com/400x300/?bird,flying,sky",
+        
+        # Naturaleza
+        "arbol": "https://source.unsplash.com/400x300/?tree,nature,forest",
+        "flor": "https://source.unsplash.com/400x300/?flower,garden,beauty",
+        "sol": "https://source.unsplash.com/400x300/?sun,light,sky",
+        "luna": "https://source.unsplash.com/400x300/?moon,night,stars",
+        "mar": "https://source.unsplash.com/400x300/?ocean,water,waves",
+        "montaña": "https://source.unsplash.com/400x300/?mountain,nature,landscape",
+        
+        # Transporte
+        "coche": "https://source.unsplash.com/400x300/?car,vehicle,road",
+        "avion": "https://source.unsplash.com/400x300/?airplane,flying,travel",
+        "tren": "https://source.unsplash.com/400x300/?train,railway,transport",
+        "bicicleta": "https://source.unsplash.com/400x300/?bicycle,cycling,sport",
+        
+        # Personas y familia
+        "hombre": "https://source.unsplash.com/400x300/?man,person,male",
+        "mujer": "https://source.unsplash.com/400x300/?woman,person,female",
+        "niño": "https://source.unsplash.com/400x300/?child,kid,playing",
+        "familia": "https://source.unsplash.com/400x300/?family,people,together",
+        "amigo": "https://source.unsplash.com/400x300/?friends,people,happy",
+        
+        # Emociones
+        "feliz": "https://source.unsplash.com/400x300/?happy,joy,smiling",
+        "triste": "https://source.unsplash.com/400x300/?sad,crying,emotion",
+        "enojado": "https://source.unsplash.com/400x300/?angry,emotion,frustrated",
+        "contento": "https://source.unsplash.com/400x300/?content,happy,peaceful",
+    }
     
-    # Buscar si contiene alguna palabra clave
-    for clave, url in imagenes_especificas.items():
+    # Buscar palabra exacta primero en acciones/verbos
+    palabra_lower = palabra_esp.lower().strip()
+    if palabra_lower in acciones_verbos:
+        return acciones_verbos[palabra_lower]
+    
+    # Buscar palabra exacta en objetos/lugares
+    if palabra_lower in objetos_lugares:
+        return objetos_lugares[palabra_lower]
+    
+    # Buscar si contiene alguna palabra clave de acciones/verbos
+    for clave, url in acciones_verbos.items():
         if clave in palabra_lower:
             return url
     
-    # Imágenes por categoría optimizadas para iOS
-    if any(word in palabra_lower for word in ['persona', 'gente', 'hombre', 'mujer', 'niño']):
-        return "https://images.pexels.com/photos/837358/pexels-photo-837358.jpeg?w=400&h=300&fit=crop"
+    # Buscar si contiene alguna palabra clave de objetos/lugares
+    for clave, url in objetos_lugares.items():
+        if clave in palabra_lower:
+            return url
     
-    elif any(word in palabra_lower for word in ['comida', 'beber', 'cafe', 'agua', 'pan']):
-        return "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?w=400&h=300&fit=crop"
+    # Búsqueda por categorías con Google Images
+    if any(word in palabra_lower for word in ['correr', 'caminar', 'mover', 'viajar']):
+        return "https://source.unsplash.com/400x300/?action,movement,people"
     
-    elif any(word in palabra_lower for word in ['casa', 'hogar', 'habitacion', 'cocina']):
-        return "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?w=400&h=300&fit=crop"
+    elif any(word in palabra_lower for word in ['comer', 'beber', 'alimento', 'bebida']):
+        return "https://source.unsplash.com/400x300/?food,drink,meal"
     
-    elif any(word in palabra_lower for word in ['naturaleza', 'arbol', 'flor', 'sol', 'luna']):
-        return "https://images.pexels.com/photos/1509508/pexels-photo-1509508.jpeg?w=400&h=300&fit=crop"
+    elif any(word in palabra_lower for word in ['casa', 'hogar', 'habitacion', 'lugar']):
+        return "https://source.unsplash.com/400x300/?home,house,interior"
     
-    elif any(word in palabra_lower for word in ['animal', 'perro', 'gato', 'pajaro']):
-        return "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?w=400&h=300&fit=crop"
+    elif any(word in palabra_lower for word in ['naturaleza', 'arbol', 'flor', 'paisaje']):
+        return "https://source.unsplash.com/400x300/?nature,landscape,outdoor"
     
-    elif any(word in palabra_lower for word in ['coche', 'carro', 'auto', 'avion', 'tren']):
-        return "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?w=400&h=300&fit=crop"
+    elif any(word in palabra_lower for word in ['animal', 'perro', 'gato', 'mascota']):
+        return "https://source.unsplash.com/400x300/?animal,pet,wildlife"
     
-    # Imagen genérica de aprendizaje optimizada para iOS
-    return "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?w=400&h=300&fit=crop"
+    elif any(word in palabra_lower for word in ['coche', 'carro', 'auto', 'transporte']):
+        return "https://source.unsplash.com/400x300/?vehicle,transport,road"
+    
+    elif any(word in palabra_lower for word in ['persona', 'gente', 'hombre', 'mujer']):
+        return "https://source.unsplash.com/400x300/?people,person,human"
+    
+    # Búsqueda genérica con la palabra en español e inglés
+    termino_busqueda = palabra_lower.replace(' ', ',')
+    return f"https://source.unsplash.com/400x300/?{termino_busqueda},concept,visual"
 
 # --- SISTEMA DE REPETICIÓN ESPACIADA ---
 def calcular_siguiente_repaso(dificultad, repeticiones):
@@ -639,7 +707,7 @@ if st.session_state.vista == 'Entrenar':
         
         st.divider()
         
-        # SECCIÓN DE NAVEGACIÓN Y EDICIÓN
+        # SECCIÓN DE NAVEGACIÓN PRINCIPAL
         col_nav1, col_nav2, col_nav3, col_nav4, col_nav5 = st.columns(5)
         
         with col_nav1:
@@ -668,6 +736,45 @@ if st.session_state.vista == 'Entrenar':
             if st.button("🔀 Aleatorio", key="btn_aleatorio", use_container_width=True):
                 st.session_state.indice_palabra_actual = random.randint(0, len(df) - 1)
                 st.session_state.revelado = False
+                st.rerun()
+        
+        # SECCIÓN DE BOTONES DE MEMORIZACIÓN
+        st.markdown("---")
+        st.markdown("### 🎯 Estado de Memorización")
+        
+        col_mem1, col_mem2, col_mem3 = st.columns(3)
+        
+        with col_mem1:
+            if st.button("✅ MEMORIZADO", key="btn_memorizado", use_container_width=True, type="primary"):
+                actualizar_palabra(palabra['id'], 'memorizado')
+                st.session_state.revelado = False
+                st.success("🎉 ¡Palabra memorizada!")
+                time.sleep(1)
+                # Avanzar automáticamente
+                if st.session_state.indice_palabra_actual < len(df) - 1:
+                    st.session_state.indice_palabra_actual += 1
+                st.rerun()
+        
+        with col_mem2:
+            if st.button("❌ NO MEMORIZADO", key="btn_no_memorizado", use_container_width=True):
+                actualizar_palabra(palabra['id'], 'pendiente')
+                st.session_state.revelado = False
+                st.warning("📝 Palabra marcada como no memorizada")
+                time.sleep(1)
+                # Avanzar automáticamente
+                if st.session_state.indice_palabra_actual < len(df) - 1:
+                    st.session_state.indice_palabra_actual += 1
+                st.rerun()
+        
+        with col_mem3:
+            if st.button("⏰ REPETIR MÁS TARDE", key="btn_repetir", use_container_width=True):
+                actualizar_palabra(palabra['id'], 'repasar')
+                st.session_state.revelado = False
+                st.info("⏰ Palabra programada para repasar más tarde")
+                time.sleep(1)
+                # Avanzar automáticamente
+                if st.session_state.indice_palabra_actual < len(df) - 1:
+                    st.session_state.indice_palabra_actual += 1
                 st.rerun()
         
         # SECCIÓN DE EDICIÓN
@@ -765,12 +872,8 @@ if st.session_state.vista == 'Entrenar':
                     st.rerun()
             
             with col_btn3:
-                if st.button("🔄 REPETIR MÁS TARDE", key="btn_repetir", use_container_width=True):
-                    actualizar_palabra(palabra['id'], 'nuevo')
-                    st.session_state.revelado = False
-                    st.rerun()
 
-# --- VISTA: REPASO (QUIZ 4 OPCIONES) ---
+# --- VISTA: REPASO INTELIGENTE MEJORADO ---
 elif st.session_state.vista == 'Repaso':
     st.header("🔄 Repaso Inteligente")
     
@@ -797,87 +900,266 @@ elif st.session_state.vista == 'Repaso':
     if df_memorizadas.empty:
         st.info("📚 No hay palabras memorizadas para repasar. Empieza con el entrenamiento 🎯")
     else:
-        # Inicializar quiz si no existe
-        if 'quiz_actual' not in st.session_state:
-            st.session_state.quiz_actual = None
-            st.session_state.quiz_opciones = []
-            st.session_state.quiz_respuesta_correcta = None
+        # MODO DE REPASO MEJORADO
+        st.markdown("---")
+        st.markdown("### 🎯 Modo de Repaso")
         
-        # Seleccionar palabra aleatoria para quiz
-        if st.session_state.quiz_actual is None:
-            palabra_quiz = df_memorizadas.iloc[0]
-            st.session_state.quiz_actual = palabra_quiz
+        modo_repaso = st.radio("Elige el modo de repaso:", 
+                              ["📝 Lista Completa", "🎮 Quiz Rápido", "🧠 Repaso Intensivo"],
+                              key="modo_repaso")
+        
+        if modo_repaso == "📝 Lista Completa":
+            # MOSTRAR TODAS LAS PALABRAS MEMORIZADAS
+            st.markdown("#### 📚 Todas tus palabras memorizadas:")
             
-            # Determinar dirección del quiz (aleatorio)
-            direccion = random.choice(['ru->es', 'es->ru'])
+            # Buscador
+            termino_busqueda = st.text_input("🔍 Buscar palabra:", key="buscar_repaso")
             
-            if direccion == 'ru->es':
-                # Mostrar ruso, opciones en español
-                pregunta = palabra_quiz['ruso']
-                respuesta_correcta = palabra_quiz['esp']
-                
-                # Generar opciones incorrectas
-                otras_palabras = df_memorizadas[df_memorizadas['id'] != palabra_quiz['id']]['esp'].tolist()
-                opciones_incorrectas = random.sample(otras_palabras, min(3, len(otras_palabras)))
-                opciones = [respuesta_correcta] + opciones_incorrectas
-                random.shuffle(opciones)
-                
-                st.session_state.quiz_pregunta = f"🇷🇺 ¿Qué significa '{pregunta}'?"
-                st.session_state.quiz_opciones = opciones
-                st.session_state.quiz_respuesta_correcta = respuesta_correcta
-                st.session_state.quiz_tipo = 'ru->es'
-                
+            # Filtrar palabras
+            if termino_busqueda:
+                df_filtradas = df_memorizadas[
+                    df_memorizadas['ruso'].str.contains(termino_busqueda, case=False) |
+                    df_memorizadas['esp'].str.contains(termino_busqueda, case=False)
+                ]
             else:
-                # Mostrar español, opciones en ruso
-                pregunta = palabra_quiz['esp']
-                respuesta_correcta = palabra_quiz['ruso']
-                
-                # Generar opciones incorrectas
-                otras_palabras = df_memorizadas[df_memorizadas['id'] != palabra_quiz['id']]['ruso'].tolist()
-                opciones_incorrectas = random.sample(otras_palabras, min(3, len(otras_palabras)))
-                opciones = [respuesta_correcta] + opciones_incorrectas
-                random.shuffle(opciones)
-                
-                st.session_state.quiz_pregunta = f"🇪🇸 ¿Cómo se dice '{pregunta}' en ruso?"
-                st.session_state.quiz_opciones = opciones
-                st.session_state.quiz_respuesta_correcta = respuesta_correcta
-                st.session_state.quiz_tipo = 'es->ru'
+                df_filtradas = df_memorizadas
+            
+            # Mostrar palabras en tarjetas
+            for i, (_, palabra) in enumerate(df_filtradas.iterrows()):
+                with st.expander(f"🇷🇺 {palabra['ruso']} - 🇪🇸 {palabra['esp']}", expanded=False):
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.write(f"**Transliteración:** {palabra['trans']}")
+                        st.write(f"**Ubicación:** {palabra['ubicacion']}")
+                        st.write(f"**Mnemotecnia:** {palabra['mne']}")
+                        
+                        # Audio de pronunciación
+                        if st.button(f"🔊 Escuchar {palabra['ruso']}", key=f"audio_repaso_{palabra['id']}"):
+                            audio = get_audio_pronunciacion(palabra['ruso'])
+                            if audio:
+                                st.audio(audio, format='audio/mp3', autoplay=True)
+                    
+                    with col2:
+                        # Mostrar imagen contextual
+                        imagen_url = get_imagen_contextual(palabra['esp'])
+                        timestamp = int(time.time())
+                        imagen_url_con_timestamp = f"{imagen_url}&t={timestamp}"
+                        
+                        try:
+                            st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra['esp']}", output_format="JPEG")
+                        except:
+                            st.warning("⚠️ Imagen no disponible")
+                    
+                    # Botones de acción
+                    col_btn1, col_btn2, col_btn3 = st.columns(3)
+                    
+                    with col_btn1:
+                        if st.button("✅ Dominada", key=f"dominada_{palabra['id']}", use_container_width=True):
+                            actualizar_palabra(palabra['id'], 'memorizado', acierto=True)
+                            st.success("✅ Palabra reforzada")
+                            st.rerun()
+                    
+                    with col_btn2:
+                        if st.button("🔄 Repasar", key=f"repaso_individual_{palabra['id']}", use_container_width=True):
+                            actualizar_palabra(palabra['id'], 'repasar')
+                            st.info("🔄 Programada para repaso")
+                            st.rerun()
+                    
+                    with col_btn3:
+                        if st.button("❌ Olvidada", key=f"olvidada_{palabra['id']}", use_container_width=True):
+                            actualizar_palabra(palabra['id'], 'pendiente')
+                            st.warning("❌ Palabra regresada a pendiente")
+                            st.rerun()
         
-        # Mostrar quiz
-        st.markdown(f"""
-            <div class="quiz-card">
-                <h2>{st.session_state.quiz_pregunta}</h2>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        # Mostrar opciones
-        for i, opcion in enumerate(st.session_state.quiz_opciones):
-            if st.button(f"📍 {opcion}", key=f"opcion_{i}", use_container_width=True):
-                if opcion == st.session_state.quiz_respuesta_correcta:
-                    st.success("🎉 ¡Correcto! ¡Bien hecho!")
-                    actualizar_palabra(st.session_state.quiz_actual['id'], 'memorizado', acierto=True)
-                else:
-                    st.error(f"❌ Incorrecto. La respuesta correcta era: {st.session_state.quiz_respuesta_correcta}")
-                    actualizar_palabra(st.session_state.quiz_actual['id'], 'memorizado', acierto=False)
-                
-                # Resetear quiz
+        elif modo_repaso == "🎮 Quiz Rápido":
+            # QUIZ TRADICIONAL MEJORADO
+            st.markdown("#### 🎮 Quiz Rápido de 4 Opciones")
+            
+            # Inicializar quiz si no existe
+            if 'quiz_actual' not in st.session_state:
                 st.session_state.quiz_actual = None
-                time.sleep(2)
-                st.rerun()
+                st.session_state.quiz_opciones = []
+                st.session_state.quiz_respuesta_correcta = None
+                st.session_state.puntuacion = 0
+                st.session_state.total_preguntas = 0
+            
+            # Seleccionar palabra aleatoria para quiz
+            if st.session_state.quiz_actual is None:
+                palabra_quiz = df_memorizadas.sample(1).iloc[0]
+                st.session_state.quiz_actual = palabra_quiz
+                
+                # Determinar dirección del quiz (aleatorio)
+                direccion = random.choice(['ru->es', 'es->ru'])
+                
+                if direccion == 'ru->es':
+                    # Mostrar ruso, opciones en español
+                    pregunta = palabra_quiz['ruso']
+                    respuesta_correcta = palabra_quiz['esp']
+                    
+                    # Generar opciones incorrectas
+                    otras_palabras = df_memorizadas[df_memorizadas['esp'] != respuesta_correcta]
+                    if len(otras_palabras) >= 3:
+                        opciones_incorrectas = otras_palabras['esp'].sample(3).tolist()
+                    else:
+                        opciones_incorrectas = otras_palabras['esp'].tolist()
+                    
+                    st.session_state.quiz_opciones = [respuesta_correcta] + opciones_incorrectas
+                    random.shuffle(st.session_state.quiz_opciones)
+                    st.session_state.quiz_respuesta_correcta = respuesta_correcta
+                    st.session_state.quiz_direccion = 'ru->es'
+                    
+                else:
+                    # Mostrar español, opciones en ruso
+                    pregunta = palabra_quiz['esp']
+                    respuesta_correcta = palabra_quiz['ruso']
+                    
+                    # Generar opciones incorrectas
+                    otras_palabras = df_memorizadas[df_memorizadas['ruso'] != respuesta_correcta]
+                    if len(otras_palabras) >= 3:
+                        opciones_incorrectas = otras_palabras['ruso'].sample(3).tolist()
+                    else:
+                        opciones_incorrectas = otras_palabras['ruso'].tolist()
+                    
+                    st.session_state.quiz_opciones = [respuesta_correcta] + opciones_incorrectas
+                    random.shuffle(st.session_state.quiz_opciones)
+                    st.session_state.quiz_respuesta_correcta = respuesta_correcta
+                    st.session_state.quiz_direccion = 'es->ru'
+            
+            # Mostrar quiz actual
+            if st.session_state.quiz_actual is not None:
+                # Mostrar puntuación
+                st.markdown(f"**Puntuación:** {st.session_state.puntuacion}/{st.session_state.total_preguntas}")
+                
+                st.markdown("---")
+                
+                # Mostrar pregunta
+                if st.session_state.quiz_direccion == 'ru->es':
+                    st.markdown(f"#### 🇷🇺 ¿Qué significa: **{st.session_state.quiz_actual['ruso']}**?")
+                else:
+                    st.markdown(f"#### 🇪🇸 ¿Cómo se dice en ruso: **{st.session_state.quiz_actual['esp']}**?")
+                
+                # Mostrar opciones
+                col1, col2 = st.columns(2)
+                for i, opcion in enumerate(st.session_state.quiz_opciones):
+                    if i < 2:
+                        with col1:
+                            if st.button(f"📍 {opcion}", key=f"opcion_{i}", use_container_width=True):
+                                st.session_state.total_preguntas += 1
+                                if opcion == st.session_state.quiz_respuesta_correcta:
+                                    st.success("🎉 ¡Correcto! ¡Bien hecho!")
+                                    st.session_state.puntuacion += 1
+                                    actualizar_palabra(st.session_state.quiz_actual['id'], 'memorizado', acierto=True)
+                                else:
+                                    st.error(f"❌ Incorrecto. La respuesta correcta era: {st.session_state.quiz_respuesta_correcta}")
+                                    actualizar_palabra(st.session_state.quiz_actual['id'], 'memorizado', acierto=False)
+                                
+                                # Resetear quiz
+                                st.session_state.quiz_actual = None
+                                st.session_state.quiz_opciones = []
+                                st.session_state.quiz_respuesta_correcta = None
+                                time.sleep(2)
+                                st.rerun()
+                    else:
+                        with col2:
+                            if st.button(f"📍 {opcion}", key=f"opcion_{i}", use_container_width=True):
+                                st.session_state.total_preguntas += 1
+                                if opcion == st.session_state.quiz_respuesta_correcta:
+                                    st.success("🎉 ¡Correcto! ¡Bien hecho!")
+                                    st.session_state.puntuacion += 1
+                                    actualizar_palabra(st.session_state.quiz_actual['id'], 'memorizado', acierto=True)
+                                else:
+                                    st.error(f"❌ Incorrecto. La respuesta correcta era: {st.session_state.quiz_respuesta_correcta}")
+                                    actualizar_palabra(st.session_state.quiz_actual['id'], 'memorizado', acierto=False)
+                                
+                                # Resetear quiz
+                                st.session_state.quiz_actual = None
+                                st.session_state.quiz_opciones = []
+                                st.session_state.quiz_respuesta_correcta = None
+                                time.sleep(2)
+                                st.rerun()
+                
+                # Botón para saltar pregunta
+                if st.button("⏭️ Saltar pregunta", key="skip_question"):
+                    st.session_state.quiz_actual = None
+                    st.session_state.quiz_opciones = []
+                    st.session_state.quiz_respuesta_correcta = None
+                    st.rerun()
         
-        # Botón para saltar pregunta
-        if st.button("⏭️ Siguiente Pregunta", use_container_width=True):
-            st.session_state.quiz_actual = None
-            st.rerun()
+        else:  # 🧠 Repaso Intensivo
+            st.markdown("#### 🧠 Repaso Intensivo - Todas las palabras seguidas")
+            
+            # Inicializar repaso intensivo
+            if 'repaso_intensivo_indice' not in st.session_state:
+                st.session_state.repaso_intensivo_indice = 0
+                st.session_state.repaso_intensivo_errores = 0
+            
+            if st.session_state.repaso_intensivo_indice < len(df_memorizadas):
+                palabra_actual = df_memorizadas.iloc[st.session_state.repaso_intensivo_indice]
+                
+                st.markdown(f"**Palabra {st.session_state.repaso_intensivo_indice + 1} de {len(df_memorizadas)}**")
+                st.markdown(f"**Errores:** {st.session_state.repaso_intensivo_errores}")
+                
+                st.markdown("---")
+                st.markdown(f"#### 🇷🇺 ¿Qué significa: **{palabra_actual['ruso']}**?")
+                
+                # Input para respuesta
+                respuesta_usuario = st.text_input("Escribe tu respuesta:", key="respuesta_intensiva")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    if st.button("✅ Comprobar", key="comprobar_intensivo", use_container_width=True):
+                        if respuesta_usuario.lower().strip() == palabra_actual['esp'].lower().strip():
+                            st.success("🎉 ¡Correcto!")
+                            actualizar_palabra(palabra_actual['id'], 'memorizado', acierto=True)
+                            st.session_state.repaso_intensivo_indice += 1
+                            time.sleep(1)
+                            st.rerun()
+                        else:
+                            st.error(f"❌ Incorrecto. La respuesta correcta es: {palabra_actual['esp']}")
+                            st.session_state.repaso_intensivo_errores += 1
+                            actualizar_palabra(palabra_actual['id'], 'memorizado', acierto=False)
+                            time.sleep(2)
+                            st.rerun()
+                
+                with col2:
+                    if st.button("🔊 Escuchar", key="escuchar_intensivo", use_container_width=True):
+                        audio = get_audio_pronunciacion(palabra_actual['ruso'])
+                        if audio:
+                            st.audio(audio, format='audio/mp3', autoplay=True)
+                
+                with col3:
+                    if st.button("⏭️ Saltar", key="saltar_intensivo", use_container_width=True):
+                        st.session_state.repaso_intensivo_indice += 1
+                        st.rerun()
+                
+                # Mostrar ayuda
+                with st.expander("💡 Ayuda", expanded=False):
+                    st.write(f"**Mnemotecnia:** {palabra_actual['mne']}")
+                    st.write(f"**Ubicación:** {palabra_actual['ubicacion']}")
+                    st.write(f"**Transliteración:** {palabra_actual['trans']}")
+            
+            else:
+                st.success("🎉 ¡Has completado el repaso intensivo!")
+                st.markdown(f"**Total de errores:** {st.session_state.repaso_intensivo_errores}")
+                
+                if st.button("🔄 Reiniciar repaso intensivo", key="reiniciar_intensivo"):
+                    st.session_state.repaso_intensivo_indice = 0
+                    st.session_state.repaso_intensivo_errores = 0
+                    st.rerun()
 
 # --- VISTA: PALACIO (GESTIÓN MNEMOTÉCNICA) ---
 elif st.session_state.vista == 'Palacio':
     st.header("🏰 Palacio de la Memoria")
     
-    # Estadísticas del palacio
+    # Estadísticas del palacio - CORREGIDO
     total_palabras = db.execute("SELECT COUNT(*) FROM palacio").fetchone()[0]
     memorizadas = db.execute("SELECT COUNT(*) FROM palacio WHERE estado = 'memorizado'").fetchone()[0]
     pendientes = total_palabras - memorizadas
+    
+    # Debug: mostrar conteos reales
+    st.write(f"DEBUG - Total: {total_palabras}, Memorizadas: {memorizadas}, Pendientes: {pendientes}")
     
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -1085,36 +1367,247 @@ elif st.session_state.vista == 'Cargar':
             | дом | dom | casa | un domo |
             """)
 
-# --- VISTA: NEURO-PROGRAMACIÓN ---
+# --- VISTA: NEURO-PROGRAMACIÓN MEJORADA ---
 elif st.session_state.vista == 'Neuro':
-    st.header("🧠 Neuro-Programación")
+    st.header("🧠 Neuro-Programación Avanzada")
     
     st.markdown("""
-    <div class="card">
+    <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
         <h2>🧬 Técnicas de Reprogramación Inconsciente</h2>
-        <p>Estas técnicas están diseñadas para acelerar tu aprendizaje a nivel subconsciente.</p>
+        <p>Accede a tu potencial máximo con técnicas neuro-científicas probadas</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Estadísticas de progreso
-    st.subheader("📊 Tu Progreso")
+    # Estadísticas de progreso mejoradas
+    st.subheader("📊 Tu Progreso Neuro-Lingüístico")
     
     total = db.execute("SELECT COUNT(*) FROM palacio").fetchone()[0]
     memorizadas = db.execute("SELECT COUNT(*) FROM palacio WHERE estado = 'memorizado'").fetchone()[0]
+    repaso = db.execute("SELECT COUNT(*) FROM palacio WHERE estado = 'repasar'").fetchone()[0]
     progreso = (memorizadas / total * 100) if total > 0 else 0
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric("📚 Total", total)
     with col2:
         st.metric("✅ Dominadas", memorizadas)
     with col3:
-        st.metric("📈 Progreso", f"{progreso:.1f}%")
+        st.metric("� Repaso", repaso)
+    with col4:
+        st.metric("�📈 Progreso", f"{progreso:.1f}%")
     
-    # Barra de progreso
+    # Barra de progreso con colores
     st.progress(progreso / 100)
     
+    # Nivel de maestría
+    if progreso >= 80:
+        st.success("🏆 ¡Nivel EXPERTO! Dominas el ruso avanzado")
+    elif progreso >= 60:
+        st.info("🎯 Nivel INTERMEDIO - Buen progreso")
+    elif progreso >= 40:
+        st.warning("📚 Nivel PRINCIPIANTE - Sigue adelante")
+    else:
+        st.error("🌱 Nivel NOVATO - Empieza tu viaje")
+    
     st.divider()
+    
+    # SECCIÓN DE PROGRAMACIÓN MEJORADA
+    st.subheader("🎯 Sesiones de Programación")
+    
+    # Obtener palabras para programación
+    df_programacion = pd.read_sql_query("SELECT * FROM palacio ORDER BY id ASC LIMIT 10", db)
+    
+    if not df_programacion.empty:
+        st.info("🎧 Ponte auriculares y relájate. Esta sesión programará tu inconsciente.")
+        
+        # Modo de programación
+        modo_programacion = st.radio("Elige el modo de programación:", 
+                                    ["🎯 Individual", "🌊 Secuencial", "🚀 Intensiva"],
+                                    key="modo_programacion")
+        
+        if modo_programacion == "🎯 Individual":
+            # Programación individual mejorada
+            st.markdown("#### 🎯 Programación Individual")
+            
+            palabra_seleccionada = st.selectbox(
+                "Selecciona una palabra para programar:",
+                options=df_programacion['esp'].tolist(),
+                format_func=lambda x: f"🇷🇺 {df_programacion[df_programacion['esp'] == x]['ruso'].iloc[0]} - 🇪🇸 {x}"
+            )
+            
+            palabra = df_programacion[df_programacion['esp'] == palabra_seleccionada].iloc[0]
+            
+            # Mostrar información completa
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown(f"""
+                <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h3>🇷🇺 {palabra['ruso']}</h3>
+                    <p><strong>Transliteración:</strong> {palabra['trans']}</p>
+                    <p><strong>Significado:</strong> {palabra['esp']}</p>
+                    <p><strong>Ubicación:</strong> {palabra['ubicacion']}</p>
+                    <p><strong>Mnemotecnia:</strong> {palabra['mne']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col2:
+                # Imagen contextual
+                imagen_url = get_imagen_contextual(palabra['esp'])
+                timestamp = int(time.time())
+                imagen_url_con_timestamp = f"{imagen_url}&t={timestamp}"
+                
+                try:
+                    st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra['esp']}", output_format="JPEG")
+                except:
+                    st.warning("⚠️ Imagen no disponible")
+            
+            # Controles de programación
+            st.markdown("#### 🎛️ Controles de Programación")
+            
+            col_prog1, col_prog2, col_prog3 = st.columns(3)
+            
+            with col_prog1:
+                if st.button(f"🧠 Programar '{palabra['ruso']}'", key=f"programar_individual_{palabra['id']}", use_container_width=True, type="primary"):
+                    # Audio subliminal completo
+                    audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
+                    if audio_subliminal:
+                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
+                        st.success(f"🧠 Programación activa: {palabra['ubicacion']} ↔ {palabra['ruso']} ↔ {palabra['esp']}")
+                        
+                        # Audio de pronunciación
+                        audio_ruso = get_audio_pronunciacion(palabra['ruso'])
+                        if audio_ruso:
+                            st.audio(audio_ruso, format='audio/mp3', autoplay=True)
+                    else:
+                        st.error("❌ Error generando programación")
+            
+            with col_prog2:
+                if st.button(f"🔊 Pronunciación", key=f"pronunciacion_individual_{palabra['id']}", use_container_width=True):
+                    audio_ruso = get_audio_pronunciacion(palabra['ruso'])
+                    if audio_ruso:
+                        st.audio(audio_ruso, format='audio/mp3', autoplay=True)
+                        st.success("🔊 Escuchando pronunciación rusa")
+            
+            with col_prog3:
+                if st.button(f"💫 Reforzar", key=f"reforzar_individual_{palabra['id']}", use_container_width=True):
+                    # Doble programación
+                    audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
+                    if audio_subliminal:
+                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
+                        st.success("💫 Refuerzo triple activado")
+                        time.sleep(2)
+                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
+        
+        elif modo_programacion == "🌊 Secuencial":
+            # Programación secuencial
+            st.markdown("#### 🌊 Programación Secuencial")
+            st.info("🔄 Las palabras se programarán automáticamente una tras otra")
+            
+            if 'programacion_secuencial_indice' not in st.session_state:
+                st.session_state.programacion_secuencial_indice = 0
+            
+            if st.session_state.programacion_secuencial_indice < len(df_programacion):
+                palabra_actual = df_programacion.iloc[st.session_state.programacion_secuencial_indice]
+                
+                st.markdown(f"**Programando palabra {st.session_state.programacion_secuencial_indice + 1} de {len(df_programacion)}**")
+                st.markdown(f"#### 🇷🇺 {palabra_actual['ruso']} - 🇪🇸 {palabra_actual['esp']}")
+                
+                # Mostrar imagen
+                imagen_url = get_imagen_contextual(palabra_actual['esp'])
+                timestamp = int(time.time())
+                imagen_url_con_timestamp = f"{imagen_url}&t={timestamp}"
+                
+                try:
+                    st.image(imagen_url_con_timestamp, use_container_width=True, caption=f"🖼️ {palabra_actual['esp']}", output_format="JPEG")
+                except:
+                    st.warning("⚠️ Imagen no disponible")
+                
+                # Programación automática
+                if st.button("🚀 Iniciar Programación Secuencial", key="iniciar_secuencial", use_container_width=True, type="primary"):
+                    # Programar palabra actual
+                    audio_subliminal = generar_audio_subliminal(palabra_actual['ruso'], palabra_actual['esp'], palabra_actual['mne'], palabra_actual['ubicacion'])
+                    if audio_subliminal:
+                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
+                        
+                        # Avanzar automáticamente después de 5 segundos
+                        time.sleep(5)
+                        st.session_state.programacion_secuencial_indice += 1
+                        st.rerun()
+                
+                # Controles manuales
+                col_sec1, col_sec2 = st.columns(2)
+                
+                with col_sec1:
+                    if st.button("⏭️ Siguiente", key="siguiente_secuencial", use_container_width=True):
+                        st.session_state.programacion_secuencial_indice += 1
+                        st.rerun()
+                
+                with col_sec2:
+                    if st.button("🔄 Reiniciar", key="reiniciar_secuencial", use_container_width=True):
+                        st.session_state.programacion_secuencial_indice = 0
+                        st.rerun()
+            else:
+                st.success("🎉 ¡Programación secuencial completada!")
+                if st.button("🔄 Reiniciar programación", key="reiniciar_programacion"):
+                    st.session_state.programacion_secuencial_indice = 0
+                    st.rerun()
+        
+        else:  # 🚀 Intensiva
+            # Programación intensiva
+            st.markdown("#### 🚀 Programación Intensiva")
+            st.warning("⚡ Modo intensivo - Todas las palabras seguidas")
+            
+            if st.button("🚀 INICIAR PROGRAMACIÓN INTENSIVA", key="iniciar_intensiva", use_container_width=True, type="primary"):
+                st.info("🧠 Iniciando programación intensiva de todas las palabras...")
+                
+                # Programar todas las palabras seguidas
+                for i, (_, palabra) in enumerate(df_programacion.iterrows()):
+                    st.markdown(f"**{i+1}/{len(df_programacion)}** - 🇷🇺 {palabra['ruso']} - 🇪🇸 {palabra['esp']}")
+                    
+                    # Audio subliminal
+                    audio_subliminal = generar_audio_subliminal(palabra['ruso'], palabra['esp'], palabra['mne'], palabra['ubicacion'])
+                    if audio_subliminal:
+                        st.audio(audio_subliminal, format='audio/mp3', autoplay=True)
+                        time.sleep(3)  # Pausa entre palabras
+                
+                st.success("🎉 ¡Programación intensiva completada!")
+    
+    else:
+        st.warning("⚠️ No hay palabras disponibles para programación. Carga algunas palabras primero.")
+    
+    # SECCIÓN DE TÉCNICAS AVANZADAS
+    st.divider()
+    st.subheader("🧬 Técnicas Avanzadas")
+    
+    col_tec1, col_tec2 = st.columns(2)
+    
+    with col_tec1:
+        st.markdown("""
+        <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <h3>🎯 Visualización Guiada</h3>
+            <p>Cierra los ojos y visualiza cada palabra en su ubicación del palacio mientras escuchas el audio.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_tec2:
+        st.markdown("""
+        <div class="card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+            <h3>🌊 Ondas Alpha</h3>
+            <p>Escucha en estado relajado para máxima absorción subconsciente.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Recomendaciones personalizadas
+    st.markdown("---")
+    st.subheader("💡 Recomendaciones Personalizadas")
+    
+    if progreso < 30:
+        st.info("🌱 **Recomendación:** Empieza con programación individual para construir bases sólidas")
+    elif progreso < 60:
+        st.info("🎯 **Recomendación:** Usa programación secuencial para consolidar tu aprendizaje")
+    else:
+        st.info("🚀 **Recomendación:** Programa intensiva para dominio avanzado")
     
     # Sesión de programación inconsciente
     st.subheader("🎯 Sesión de Programación")
